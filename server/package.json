@@ -7,7 +7,9 @@
     "dev": "nodemon src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "seed": "ts-node src/scripts/seedCities.ts"
+    "seed": "ts-node src/scripts/seedCities.ts",
+    "seed:data": "ts-node src/scripts/seedData.ts",
+    "seed:all": "ts-node src/scripts/seedCities.ts && ts-node src/scripts/seedData.ts"
   },
   "dependencies": {
     "axios": "^1.6.5",
