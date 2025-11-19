@@ -103,20 +103,14 @@ const dummyUsers = [
 
 // Dummy posts data (will be populated with actual city IDs)
 const createPosts = (users: any[], cities: any[]) => {
-  const tokyo = cities.find(c => c.name === 'Tokyo');
-  const paris = cities.find(c => c.name === 'Paris');
-  const barcelona = cities.find(c => c.name === 'Barcelona');
-  const bangkok = cities.find(c => c.name === 'Bangkok');
-  const rome = cities.find(c => c.name === 'Rome');
-  const newyork = cities.find(c => c.name === 'New York');
-  const bali = cities.find(c => c.name === 'Bali');
-  const lisbon = cities.find(c => c.name === 'Lisbon');
+  // Using Barcelona as the single test city for all posts
+  const testCity = cities.find(c => c.name === 'Barcelona');
 
   return [
     // Food posts
     {
       userId: users[1]._id, // marco_chef
-      cityId: tokyo._id,
+      cityId: testCity._id,
       type: 'food',
       status: 'approved',
       title: 'Best Ramen Spot in Shibuya',
@@ -142,7 +136,7 @@ const createPosts = (users: any[], cities: any[]) => {
     },
     {
       userId: users[1]._id, // marco_chef
-      cityId: rome._id,
+      cityId: testCity._id,
       type: 'recipe',
       status: 'approved',
       title: 'Authentic Cacio e Pepe Recipe',
@@ -177,7 +171,7 @@ const createPosts = (users: any[], cities: any[]) => {
     },
     {
       userId: users[0]._id, // sarah_traveler
-      cityId: bangkok._id,
+      cityId: testCity._id,
       type: 'food',
       status: 'approved',
       title: 'Street Food Paradise on Yaowarat Road',
@@ -205,7 +199,7 @@ const createPosts = (users: any[], cities: any[]) => {
     // Photo posts
     {
       userId: users[4]._id, // maria_artist
-      cityId: barcelona._id,
+      cityId: testCity._id,
       type: 'photo',
       status: 'approved',
       title: 'Sunrise at Park Güell',
@@ -230,7 +224,7 @@ const createPosts = (users: any[], cities: any[]) => {
     },
     {
       userId: users[0]._id, // sarah_traveler
-      cityId: bali._id,
+      cityId: testCity._id,
       type: 'photo',
       status: 'approved',
       title: 'Rice Terraces at Golden Hour',
@@ -257,7 +251,7 @@ const createPosts = (users: any[], cities: any[]) => {
     // Story posts
     {
       userId: users[5]._id, // david_history
-      cityId: rome._id,
+      cityId: testCity._id,
       type: 'story',
       status: 'approved',
       title: 'The Legend of Rome\'s Mouth of Truth',
@@ -279,7 +273,7 @@ const createPosts = (users: any[], cities: any[]) => {
     // Music posts
     {
       userId: users[7]._id, // ahmed_music
-      cityId: paris._id,
+      cityId: testCity._id,
       type: 'music',
       status: 'approved',
       title: 'Accordion Music in Montmartre',
@@ -303,7 +297,7 @@ const createPosts = (users: any[], cities: any[]) => {
     // Work Exchange posts
     {
       userId: users[3]._id, // alex_digital
-      cityId: lisbon._id,
+      cityId: testCity._id,
       type: 'workExchange',
       status: 'approved',
       title: 'Hostel Looking for Social Media Help',
@@ -329,7 +323,7 @@ const createPosts = (users: any[], cities: any[]) => {
     // Insight posts
     {
       userId: users[0]._id, // sarah_traveler
-      cityId: tokyo._id,
+      cityId: testCity._id,
       type: 'insight',
       status: 'approved',
       title: 'Japanese Onsen Etiquette Guide',
@@ -353,7 +347,7 @@ const createPosts = (users: any[], cities: any[]) => {
     // Forum posts
     {
       userId: users[3]._id, // alex_digital
-      cityId: newyork._id,
+      cityId: testCity._id,
       type: 'forum',
       status: 'approved',
       title: 'Coffee Shop Meetup - Brooklyn Digital Nomads',
@@ -378,7 +372,7 @@ const createPosts = (users: any[], cities: any[]) => {
     },
     {
       userId: users[6]._id, // lisa_wellness
-      cityId: bali._id,
+      cityId: testCity._id,
       type: 'forum',
       status: 'approved',
       title: 'Question: Best Yoga Studios in Ubud?',
@@ -405,7 +399,7 @@ const createPosts = (users: any[], cities: any[]) => {
     // More varied posts
     {
       userId: users[2]._id, // yuki_explorer
-      cityId: paris._id,
+      cityId: testCity._id,
       type: 'insight',
       status: 'approved',
       title: 'How to Skip Lines at the Louvre',
@@ -416,7 +410,7 @@ const createPosts = (users: any[], cities: any[]) => {
     },
     {
       userId: users[1]._id, // marco_chef
-      cityId: barcelona._id,
+      cityId: testCity._id,
       type: 'food',
       status: 'approved',
       title: 'La Boqueria Market - Best Breakfast Spot',
@@ -437,7 +431,7 @@ const createPosts = (users: any[], cities: any[]) => {
     },
     {
       userId: users[4]._id, // maria_artist
-      cityId: newyork._id,
+      cityId: testCity._id,
       type: 'photo',
       status: 'approved',
       title: 'Brooklyn Bridge at Dawn',
@@ -451,7 +445,7 @@ const createPosts = (users: any[], cities: any[]) => {
     },
     {
       userId: users[5]._id, // david_history
-      cityId: bangkok._id,
+      cityId: testCity._id,
       type: 'story',
       status: 'approved',
       title: 'The History Behind Wat Phra Kaew\'s Emerald Buddha',
@@ -473,7 +467,7 @@ const createPosts = (users: any[], cities: any[]) => {
     // Some pending posts (for moderation testing)
     {
       userId: users[3]._id,
-      cityId: tokyo._id,
+      cityId: testCity._id,
       type: 'forum',
       status: 'pending',
       title: 'Looking for Language Exchange Partner',
@@ -487,7 +481,7 @@ const createPosts = (users: any[], cities: any[]) => {
     },
     {
       userId: users[6]._id,
-      cityId: lisbon._id,
+      cityId: testCity._id,
       type: 'insight',
       status: 'pending',
       title: 'Vegan Food Guide to Lisbon',
@@ -524,14 +518,14 @@ async function seedDatabase() {
     const createdUsers = await User.insertMany(hashedUsers);
     console.log(`✅ Created ${createdUsers.length} users`);
 
-    // Get some cities
+    // Get Barcelona as the test city
     const cities = await City.find({
-      name: { $in: ['Tokyo', 'Paris', 'Barcelona', 'Bangkok', 'Rome', 'New York', 'Bali', 'Lisbon'] }
+      name: 'Barcelona'
     });
-    console.log(`✅ Found ${cities.length} cities`);
+    console.log(`✅ Found ${cities.length} city for testing`);
 
     if (cities.length === 0) {
-      console.log('⚠️  No cities found! Please run "npm run seed" first to seed cities.');
+      console.log('⚠️  Barcelona not found! Please run "npm run seed" first to seed cities.');
       process.exit(1);
     }
 
@@ -541,23 +535,19 @@ async function seedDatabase() {
     const createdPosts = await Post.insertMany(postsData);
     console.log(`✅ Created ${createdPosts.length} posts`);
 
-    // Update city content counts
-    console.log('🔄 Updating city content counts...');
-    for (const city of cities) {
-      const postCount = createdPosts.filter(p => p.cityId.equals(city._id)).length;
-      if (postCount > 0) {
-        await City.findByIdAndUpdate(city._id, {
-          contentCount: postCount,
-          hasContent: true
-        });
-      }
-    }
+    // Update Barcelona's content count
+    console.log('🔄 Updating Barcelona content count...');
+    const barcelona = cities[0];
+    await City.findByIdAndUpdate(barcelona._id, {
+      contentCount: createdPosts.length,
+      hasContent: true
+    });
 
     console.log('\n✅ Seed completed successfully!');
     console.log('\n📊 Summary:');
     console.log(`   Users: ${createdUsers.length}`);
-    console.log(`   Posts: ${createdPosts.length}`);
-    console.log(`   Cities with content: ${cities.length}`);
+    console.log(`   Posts: ${createdPosts.length} (all in Barcelona)`);
+    console.log(`   Test City: Barcelona`);
     console.log('\n🔐 All users have password: "password123"\n');
 
     process.exit(0);
