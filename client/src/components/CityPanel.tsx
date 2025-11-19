@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
+import PostCard from './PostCard';
+import { useAuthStore } from '../store/authStore';
 
 interface City {
   _id: string;
