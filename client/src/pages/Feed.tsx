@@ -172,7 +172,7 @@ const Feed = () => {
                   </div>
                 )}
 
-                <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-500">
+                <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-300">
                   <div className="flex items-center space-x-4">
                     <span>❤️ {post.likes.length} likes</span>
                     <button

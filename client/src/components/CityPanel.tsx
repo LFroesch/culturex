@@ -214,8 +214,11 @@ const WikiContent = ({ wikiData }: { wikiData: any }) => {
 
       <style>{`
         .wiki-content a {
-          color: #2563eb;
+          color: #3b82f6;
           text-decoration: none;
+        }
+        .dark .wiki-content a {
+          color: #60a5fa;
         }
         .wiki-content a:hover {
           text-decoration: underline;
@@ -238,9 +241,16 @@ const WikiContent = ({ wikiData }: { wikiData: any }) => {
           padding: 0.5rem;
           text-align: left;
         }
+        .dark .wiki-content th,
+        .dark .wiki-content td {
+          border-color: #4b5563;
+        }
         .wiki-content th {
-          background-color: #f9fafb;
+          background-color: #f3f4f6;
           font-weight: 600;
+        }
+        .dark .wiki-content th {
+          background-color: #374151;
         }
         .wiki-content .infobox {
           float: right;
@@ -251,12 +261,25 @@ const WikiContent = ({ wikiData }: { wikiData: any }) => {
           background-color: #f9fafb;
           font-size: 0.875rem;
         }
+        .dark .wiki-content .infobox {
+          border-color: #4b5563;
+          background-color: #374151;
+        }
         .wiki-content sup {
           font-size: 0.75rem;
         }
         .wiki-content .reference {
-          color: #2563eb;
+          color: #3b82f6;
           text-decoration: none;
+        }
+        .dark .wiki-content .reference {
+          color: #60a5fa;
+        }
+        .wiki-content p {
+          color: #374151;
+        }
+        .dark .wiki-content p {
+          color: #d1d5db;
         }
       `}</style>
     </div>

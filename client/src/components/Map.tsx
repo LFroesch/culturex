@@ -248,7 +248,7 @@ const Map = ({ onCitySelect, hasCitySelected = false }: MapProps) => {
                         <div className="font-medium text-gray-900 dark:text-gray-100">{city.name}</div>
                         <div className="text-sm text-gray-500 dark:text-gray-400">{city.country}</div>
                       </div>
-                      <div className="text-xs text-gray-400 dark:text-gray-500">{city.contentCount} posts</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">{city.contentCount} posts</div>
                     </button>
                   ))}
                 </div>
