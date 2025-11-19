@@ -97,7 +97,7 @@ router.get('/:userId', authMiddleware, async (req: AuthRequest, res: Response) =
     messagesToReturn.reverse();
 
     const nextCursor = hasMore && messages.length > 0
-      ? messages[limitNum - 1]._id.toString() // The oldest message in this batch
+      ? String(messages[limitNum - 1]._id) // The oldest message in this batch
       : null;
 
     // Mark messages as read
