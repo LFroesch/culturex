@@ -399,7 +399,7 @@ const CityPanel = ({ city, onClose }: CityPanelProps) => {
             className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
               activeTab === tab.id
                 ? 'border-b-2 border-primary-600 text-primary-600 dark:text-primary-400'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100'
             }`}
           >
             {tab.label}
@@ -418,7 +418,7 @@ const CityPanel = ({ city, onClose }: CityPanelProps) => {
         </button>
 
         {loading ? (
-          <div className="text-center py-8 text-gray-600 dark:text-gray-400">Loading...</div>
+          <div className="text-center py-8 text-gray-600 dark:text-gray-300">Loading...</div>
         ) : (
           <>
             {activeTab === 'news' && (
@@ -430,14 +430,14 @@ const CityPanel = ({ city, onClose }: CityPanelProps) => {
                         <img src={article.urlToImage} alt={article.title} className="w-full h-48 object-cover rounded mb-2" />
                       )}
                       <h3 className="font-bold text-lg mb-1 text-gray-900 dark:text-gray-100">{article.title}</h3>
-                      <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">{article.description}</p>
+                      <p className="text-gray-600 dark:text-gray-300 text-sm mb-2">{article.description}</p>
                       <a href={article.url} target="_blank" rel="noopener noreferrer" className="text-primary-600 dark:text-primary-400 text-sm hover:underline">
                         Read more →
                       </a>
                     </div>
                   ))
                 ) : (
-                  <p className="text-gray-500 dark:text-gray-400">No news available</p>
+                  <p className="text-gray-500 dark:text-gray-300">No news available</p>
                 )}
               </div>
             )}
@@ -445,9 +445,9 @@ const CityPanel = ({ city, onClose }: CityPanelProps) => {
             {activeTab === 'history' && (
               <div>
                 {loading ? (
-                  <div className="text-center py-8 text-gray-600 dark:text-gray-400">Loading...</div>
+                  <div className="text-center py-8 text-gray-600 dark:text-gray-300">Loading...</div>
                 ) : wikiData?.error ? (
-                  <p className="text-gray-500 dark:text-gray-400">{wikiData.error}</p>
+                  <p className="text-gray-500 dark:text-gray-300">{wikiData.error}</p>
                 ) : wikiData ? (
                   <WikiContent wikiData={wikiData} />
                 ) : null}
@@ -462,7 +462,7 @@ const CityPanel = ({ city, onClose }: CityPanelProps) => {
                       <img src={video.thumbnail} alt={video.title} className="w-full" />
                       <div className="p-3 bg-white dark:bg-gray-900">
                         <h4 className="font-bold mb-1 text-gray-900 dark:text-gray-100">{video.title}</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">{video.channelTitle}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-300">{video.channelTitle}</p>
                         <a
                           href={`https://www.youtube.com/watch?v=${video.id}`}
                           target="_blank"
@@ -475,7 +475,7 @@ const CityPanel = ({ city, onClose }: CityPanelProps) => {
                     </div>
                   ))
                 ) : (
-                  <p className="text-gray-500 dark:text-gray-400">No videos available</p>
+                  <p className="text-gray-500 dark:text-gray-300">No videos available</p>
                 )}
               </div>
             )}
@@ -494,7 +494,7 @@ const CityPanel = ({ city, onClose }: CityPanelProps) => {
                           ))}
                         </div>
                       )}
-                      <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-2">
+                      <div className="flex items-center text-sm text-gray-500 dark:text-gray-300 mt-2">
                         <span>By {post.userId?.username || 'Unknown'}</span>
                         <span className="mx-2">•</span>
                         <span>{new Date(post.createdAt).toLocaleDateString()}</span>
@@ -502,7 +502,7 @@ const CityPanel = ({ city, onClose }: CityPanelProps) => {
                     </div>
                   ))
                 ) : (
-                  <p className="text-gray-500 dark:text-gray-400">No content yet. Be the first to contribute!</p>
+                  <p className="text-gray-500 dark:text-gray-300">No content yet. Be the first to contribute!</p>
                 )}
               </div>
             )}
