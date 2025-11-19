@@ -133,62 +133,13 @@ const Feed = () => {
         ) : (
           <div className="space-y-6">
             {posts.map((post) => (
-              <div
+              <PostCard
                 key={post._id}
-                className="border border-gray-200 dark:border-gray-700 rounded-lg p-6 hover:shadow-lg transition-shadow"
-              >
-                <div className="flex justify-between items-start mb-3">
-                  <div className="flex items-center space-x-3">
-                    <div className="relative">
-                      <div className="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center text-white font-bold">
-                        {post.userId.username?.charAt(0).toUpperCase() || '?'}
-                      </div>
-                      <div className="absolute bottom-0 right-0">
-                        <OnlineStatus userId={post.userId._id} />
-                      </div>
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                        {post.title}
-                      </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {post.userId.username} • {post.cityId.name}, {post.cityId.country}
-                      </p>
-                    </div>
-                  </div>
-                  <span className="px-3 py-1 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-200 rounded-full text-sm">
-                    {post.type}
-                  </span>
-                </div>
-
-                <p className="text-gray-700 dark:text-gray-300 mb-4">{post.description}</p>
-
-                {post.photos && post.photos.length > 0 && (
-                  <div className="grid grid-cols-2 gap-2 mb-4">
-                    {post.photos.slice(0, 4).map((photo, idx) => (
-                      <img
-                        key={idx}
-                        src={photo}
-                        alt={`Post ${idx + 1}`}
-                        className="w-full h-48 object-cover rounded-lg"
-                      />
-                    ))}
-                  </div>
-                )}
-
-                <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-300">
-                  <div className="flex items-center space-x-4">
-                    <span>❤️ {post.likes.length} likes</span>
-                    <button
-                      onClick={() => setSelectedPost(post)}
-                      className="hover:text-primary-600 dark:hover:text-primary-400"
-                    >
-                      💬 {post.comments.length} comments
-                    </button>
-                  </div>
-                  <span>{new Date(post.createdAt).toLocaleDateString()}</span>
-                </div>
-              </div>
+                post={post}
+                onLike={handleLike}
+                onClick={setSelectedPost}
+                currentUserId={user?._id}
+              />
             ))}
           </div>
         )}
