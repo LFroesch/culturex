@@ -5,6 +5,7 @@ import { useAuthStore } from '../store/authStore';
 import { useToast } from '../hooks/useToast';
 import Loading from '../components/Loading';
 import OnlineStatus from '../components/OnlineStatus';
+import PostDetailModal from '../components/PostDetailModal';
 
 const Home = () => {
   const { user } = useAuthStore();
@@ -12,6 +13,7 @@ const Home = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreatePost, setShowCreatePost] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [newPost, setNewPost] = useState({
     title: '',
     content: '',
@@ -188,7 +190,10 @@ const Home = () => {
                 <span>{post.likes.includes(user?.id || '') ? '❤️' : '🤍'}</span>
                 <span>{post.likes.length}</span>
               </button>
-              <button className="flex items-center space-x-2 text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400">
+              <button
+                onClick={() => setSelectedPost(post)}
+                className="flex items-center space-x-2 text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400"
+              >
                 <span>💬</span>
                 <span>{post.comments.length}</span>
               </button>
@@ -202,6 +207,13 @@ const Home = () => {
           </div>
         )}
       </div>
+
+      {/* Post Detail Modal */}
+      <PostDetailModal
+        post={selectedPost}
+        onClose={() => setSelectedPost(null)}
+        onLikeToggle={handleLike}
+      />
     </div>
   );
 };
