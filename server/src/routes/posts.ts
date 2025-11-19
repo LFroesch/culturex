@@ -59,7 +59,7 @@ router.get('/feed/activity', authMiddleware, async (req: AuthRequest, res: Respo
     const postsToReturn = hasMore ? posts.slice(0, limitNum) : posts;
     const lastPost = postsToReturn[postsToReturn.length - 1];
     const nextCursor = hasMore && lastPost
-      ? lastPost._id.toString()
+      ? String(lastPost._id)
       : null;
 
     res.json({
@@ -122,7 +122,7 @@ router.get('/search', authMiddleware, async (req: AuthRequest, res: Response) =>
     const postsToReturn = hasMore ? posts.slice(0, limitNum) : posts;
     const lastPost = postsToReturn[postsToReturn.length - 1];
     const nextCursor = hasMore && lastPost
-      ? lastPost._id.toString()
+      ? String(lastPost._id)
       : null;
 
     res.json({
@@ -164,7 +164,7 @@ router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
     const postsToReturn = hasMore ? posts.slice(0, limitNum) : posts;
     const lastPost = postsToReturn[postsToReturn.length - 1];
     const nextCursor = hasMore && lastPost
-      ? lastPost._id.toString()
+      ? String(lastPost._id)
       : null;
 
     res.json({
