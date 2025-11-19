@@ -14,8 +14,11 @@ interface Post {
   photos: string[];
   userId: {
     _id: string;
-    name: string;
-    country: string;
+    username: string;
+    profile?: {
+      bio?: string;
+      photos?: string[];
+    };
   };
   cityId: {
     name: string;
@@ -42,9 +45,8 @@ const Feed = () => {
     try {
       const endpoint = feedType === 'friends' ? '/posts/feed/activity' : '/posts';
       const response = await api.get(endpoint);
-      const approvedPosts = feedType === 'all'
-        ? response.data.filter((p: Post) => p)
-        : response.data;
+      const postsData = response.data.posts || response.data;
+      const approvedPosts = Array.isArray(postsData) ? postsData : [];
       setPosts(approvedPosts);
     } catch (error) {
       console.error('Failed to fetch posts:', error);
@@ -137,7 +139,7 @@ const Feed = () => {
                   <div className="flex items-center space-x-3">
                     <div className="relative">
                       <div className="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center text-white font-bold">
-                        {post.userId.name.charAt(0).toUpperCase()}
+                        {post.userId.username?.charAt(0).toUpperCase() || '?'}
                       </div>
                       <div className="absolute bottom-0 right-0">
                         <OnlineStatus userId={post.userId._id} />
@@ -148,7 +150,7 @@ const Feed = () => {
                         {post.title}
                       </h3>
                       <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {post.userId.name} • {post.cityId.name}, {post.cityId.country}
+                        {post.userId.username} • {post.cityId.name}, {post.cityId.country}
                       </p>
                     </div>
                   </div>
