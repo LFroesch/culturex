@@ -57,8 +57,9 @@ router.get('/feed/activity', authMiddleware, async (req: AuthRequest, res: Respo
     // Check if there are more posts
     const hasMore = posts.length > limitNum;
     const postsToReturn = hasMore ? posts.slice(0, limitNum) : posts;
-    const nextCursor = hasMore && postsToReturn.length > 0
-      ? postsToReturn[postsToReturn.length - 1]._id.toString()
+    const lastPost = postsToReturn[postsToReturn.length - 1];
+    const nextCursor = hasMore && lastPost
+      ? lastPost._id.toString()
       : null;
 
     res.json({
@@ -119,8 +120,9 @@ router.get('/search', authMiddleware, async (req: AuthRequest, res: Response) =>
 
     const hasMore = posts.length > limitNum;
     const postsToReturn = hasMore ? posts.slice(0, limitNum) : posts;
-    const nextCursor = hasMore && postsToReturn.length > 0
-      ? postsToReturn[postsToReturn.length - 1]._id.toString()
+    const lastPost = postsToReturn[postsToReturn.length - 1];
+    const nextCursor = hasMore && lastPost
+      ? lastPost._id.toString()
       : null;
 
     res.json({
@@ -160,8 +162,9 @@ router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
 
     const hasMore = posts.length > limitNum;
     const postsToReturn = hasMore ? posts.slice(0, limitNum) : posts;
-    const nextCursor = hasMore && postsToReturn.length > 0
-      ? postsToReturn[postsToReturn.length - 1]._id.toString()
+    const lastPost = postsToReturn[postsToReturn.length - 1];
+    const nextCursor = hasMore && lastPost
+      ? lastPost._id.toString()
       : null;
 
     res.json({
@@ -418,7 +421,7 @@ router.put('/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
     }
 
     // Check ownership
-    if (post.userId.toString() !== req.userId && post.author?.toString() !== req.userId) {
+    if (post.userId.toString() !== req.userId) {
       res.status(403).json({ error: 'Not authorized to edit this post' });
       return;
     }
@@ -552,7 +555,7 @@ router.delete('/:id', authMiddleware, async (req: AuthRequest, res: Response) =>
       return;
     }
 
-    if (!post.author || post.author.toString() !== req.userId) {
+    if (post.userId.toString() !== req.userId) {
       res.status(403).json({ error: 'Not authorized to delete this post' });
       return;
     }
