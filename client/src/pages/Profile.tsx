@@ -5,24 +5,22 @@ const Profile = () => {
   const { user, updateProfile } = useAuthStore();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    name: user?.name || '',
-    country: user?.country || '',
-    languages: user?.languages.join(', ') || '',
-    languagesToLearn: user?.languagesToLearn.join(', ') || '',
-    interests: user?.interests.join(', ') || '',
-    bio: user?.bio || '',
-    age: user?.age || ''
+    username: user?.username || '',
+    languages: user?.profile?.languages?.join(', ') || '',
+    interests: user?.profile?.interests?.join(', ') || '',
+    bio: user?.profile?.bio || ''
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await updateProfile({
-        ...formData,
-        languages: formData.languages.split(',').map(l => l.trim()).filter(Boolean),
-        languagesToLearn: formData.languagesToLearn.split(',').map(l => l.trim()).filter(Boolean),
-        interests: formData.interests.split(',').map(i => i.trim()).filter(Boolean),
-        age: formData.age ? parseInt(formData.age.toString()) : undefined
+        username: formData.username,
+        profile: {
+          bio: formData.bio,
+          languages: formData.languages.split(',').map(l => l.trim()).filter(Boolean),
+          interests: formData.interests.split(',').map(i => i.trim()).filter(Boolean)
+        }
       });
       setIsEditing(false);
     } catch (error) {
@@ -40,11 +38,11 @@ const Profile = () => {
         <div className="px-6 pb-6">
           <div className="flex items-end -mt-12 mb-4">
             <div className="w-24 h-24 bg-white rounded-full border-4 border-white flex items-center justify-center text-4xl font-bold text-primary-600 shadow-lg">
-              {user.name.charAt(0).toUpperCase()}
+              {user.username?.charAt(0).toUpperCase() || '?'}
             </div>
             <div className="ml-4 mb-2">
-              <h1 className="text-2xl font-bold text-gray-900">{user.name}</h1>
-              <p className="text-gray-600">{user.country}</p>
+              <h1 className="text-2xl font-bold text-gray-900">{user.username}</h1>
+              <p className="text-gray-600">{user.email}</p>
             </div>
             <button
               onClick={() => setIsEditing(!isEditing)}
@@ -56,27 +54,27 @@ const Profile = () => {
 
           {isEditing ? (
             <form onSubmit={handleSubmit} className="space-y-4 mt-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
                   <input
                     type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    value={formData.username}
+                    onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
-                  <input
-                    type="text"
-                    value={formData.country}
-                    onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Bio</label>
+                  <textarea
+                    value={formData.bio}
+                    onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                    rows={3}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Languages</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Languages (comma separated)</label>
                   <input
                     type="text"
                     value={formData.languages}
