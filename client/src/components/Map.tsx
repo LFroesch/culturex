@@ -230,24 +230,25 @@ const Map = ({ onCitySelect, hasCitySelected = false }: MapProps) => {
                 onChange={(e) => handleSearchChange(e.target.value)}
                 onFocus={() => searchQuery && setShowSuggestions(true)}
                 placeholder="Search cities..."
-                className="w-full px-4 py-2 bg-white rounded-md shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                aria-label="Search cities"
+                className="w-full px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
 
               {/* Autocomplete Dropdown */}
               {showSuggestions && suggestions.length > 0 && (
-                <div className="absolute top-full mt-1 w-full bg-white rounded-md shadow-lg max-h-60 overflow-y-auto">
+                <div className="absolute top-full mt-1 w-full bg-white dark:bg-gray-800 rounded-md shadow-lg max-h-60 overflow-y-auto border border-gray-200 dark:border-gray-700">
                   {suggestions.map((city) => (
                     <button
                       key={city._id}
                       type="button"
                       onClick={() => handleCityClick(city)}
-                      className="w-full px-4 py-2 text-left hover:bg-gray-100 flex justify-between items-center border-b border-gray-100 last:border-0"
+                      className="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 flex justify-between items-center border-b border-gray-100 dark:border-gray-700 last:border-0"
                     >
                       <div>
-                        <div className="font-medium text-gray-900">{city.name}</div>
-                        <div className="text-sm text-gray-500">{city.country}</div>
+                        <div className="font-medium text-gray-900 dark:text-gray-100">{city.name}</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">{city.country}</div>
                       </div>
-                      <div className="text-xs text-gray-400">{city.contentCount} posts</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">{city.contentCount} posts</div>
                     </button>
                   ))}
                 </div>
@@ -270,13 +271,13 @@ const Map = ({ onCitySelect, hasCitySelected = false }: MapProps) => {
       </div>
 
       {/* Map Style Selector */}
-      <div className={`absolute top-20 z-[1000] bg-white rounded-md shadow-lg overflow-hidden ${hasCitySelected ? 'left-4' : 'right-4'}`}>
+      <div className={`absolute top-20 z-[1000] bg-white dark:bg-gray-800 rounded-md shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 ${hasCitySelected ? 'left-4' : 'right-4'}`}>
         {(Object.keys(MAP_STYLES) as Array<keyof typeof MAP_STYLES>).map((styleKey) => (
           <button
             key={styleKey}
             onClick={() => setMapStyle(styleKey)}
-            className={`block w-full px-4 py-2 text-left hover:bg-gray-100 ${
-              mapStyle === styleKey ? 'bg-primary-100 text-primary-700 font-medium' : 'text-gray-700'
+            className={`block w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 ${
+              mapStyle === styleKey ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 font-medium' : 'text-gray-700 dark:text-gray-300'
             }`}
           >
             {MAP_STYLES[styleKey].name}

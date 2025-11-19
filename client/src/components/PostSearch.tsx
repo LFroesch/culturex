@@ -121,7 +121,7 @@ const PostSearch = () => {
                   <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">
                     {post.description}
                   </p>
-                  <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-500">
+                  <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-300">
                     <span>
                       By {post.userId.name} • {post.cityId.name}, {post.cityId.country}
                     </span>

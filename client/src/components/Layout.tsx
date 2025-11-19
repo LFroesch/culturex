@@ -32,20 +32,20 @@ const Layout = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <nav className="bg-white dark:bg-gray-800 shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center space-x-8">
-              <Link to="/" className="text-2xl font-bold text-primary-600">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-16">
+      <nav className="bg-white dark:bg-gray-800 shadow-md fixed top-0 left-0 right-0 z-50">
+        <div className="max-w-full px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-4 overflow-x-auto">
+              <Link to="/" className="text-2xl font-bold text-primary-600 dark:text-primary-400 flex-shrink-0">
                 CulturalX
               </Link>
-              <div className="hidden md:flex space-x-4">
+              <div className="hidden lg:flex space-x-2 flex-wrap">
                 {navItems.map((item) => (
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
                       location.pathname === item.path
                         ? 'bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-100'
                         : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
@@ -57,15 +57,15 @@ const Layout = () => {
                 ))}
               </div>
             </div>
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2 flex-shrink-0">
               <DarkModeToggle />
               <NotificationBell />
-              <span className="hidden md:inline text-sm text-gray-600 dark:text-gray-300">
+              <span className="hidden lg:inline text-sm text-gray-600 dark:text-gray-300 max-w-[150px] truncate">
                 {user?.name || user?.username}
               </span>
               <button
                 onClick={logout}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors"
+                className="px-3 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors"
               >
                 Logout
               </button>
@@ -74,7 +74,7 @@ const Layout = () => {
         </div>
       </nav>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main>
         <Outlet />
       </main>
 

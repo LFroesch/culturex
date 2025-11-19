@@ -4,6 +4,7 @@ import PostSearch from '../components/PostSearch';
 import { useToast } from '../hooks/useToast';
 import Loading from '../components/Loading';
 import OnlineStatus from '../components/OnlineStatus';
+import PostDetailModal from '../components/PostDetailModal';
 
 interface Post {
   _id: string;
@@ -28,6 +29,7 @@ interface Post {
 const Feed = () => {
   const toast = useToast();
   const [posts, setPosts] = useState<Post[]>([]);
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
   const [feedType, setFeedType] = useState<'friends' | 'all'>('friends');
 
@@ -49,6 +51,28 @@ const Feed = () => {
       toast.error('Failed to load posts');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleLike = async (postId: string) => {
+    try {
+      await api.post(`/posts/${postId}/like`);
+      setPosts(posts.map(p =>
+        p._id === postId
+          ? { ...p, likes: p.likes.includes('current-user') ? p.likes.filter(id => id !== 'current-user') : [...p.likes, 'current-user'] }
+          : p
+      ));
+      if (selectedPost && selectedPost._id === postId) {
+        setSelectedPost({
+          ...selectedPost,
+          likes: selectedPost.likes.includes('current-user')
+            ? selectedPost.likes.filter(id => id !== 'current-user')
+            : [...selectedPost.likes, 'current-user']
+        });
+      }
+    } catch (error) {
+      console.error('Failed to like post:', error);
+      toast.error('Failed to like post');
     }
   };
 
@@ -148,10 +172,15 @@ const Feed = () => {
                   </div>
                 )}
 
-                <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-500">
+                <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-300">
                   <div className="flex items-center space-x-4">
                     <span>❤️ {post.likes.length} likes</span>
-                    <span>💬 {post.comments.length} comments</span>
+                    <button
+                      onClick={() => setSelectedPost(post)}
+                      className="hover:text-primary-600 dark:hover:text-primary-400"
+                    >
+                      💬 {post.comments.length} comments
+                    </button>
                   </div>
                   <span>{new Date(post.createdAt).toLocaleDateString()}</span>
                 </div>
@@ -160,6 +189,13 @@ const Feed = () => {
           </div>
         )}
       </div>
+
+      {/* Post Detail Modal */}
+      <PostDetailModal
+        post={selectedPost}
+        onClose={() => setSelectedPost(null)}
+        onLikeToggle={handleLike}
+      />
     </div>
   );
 };

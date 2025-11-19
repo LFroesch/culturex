@@ -53,9 +53,12 @@ export interface IPost extends Document {
 
   likes: mongoose.Types.ObjectId[];
   comments: {
+    _id?: mongoose.Types.ObjectId;
     user: mongoose.Types.ObjectId;
     text: string;
+    parentCommentId?: mongoose.Types.ObjectId; // For nested replies
     createdAt: Date;
+    updatedAt?: Date;
   }[];
 
   createdAt: Date;
@@ -155,9 +158,16 @@ const PostSchema = new Schema<IPost>({
       required: true,
       maxlength: 1000
     },
+    parentCommentId: {
+      type: Schema.Types.ObjectId,
+      default: null
+    },
     createdAt: {
       type: Date,
       default: Date.now
+    },
+    updatedAt: {
+      type: Date
     }
   }],
   approvedAt: Date,

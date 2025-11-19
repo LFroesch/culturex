@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Background circle -->
+  <circle cx="50" cy="50" r="48" fill="#3B82F6" />
+
+  <!-- Globe outline -->
+  <circle cx="50" cy="50" r="35" fill="none" stroke="#FFFFFF" stroke-width="2.5" />
+
+  <!-- Latitude lines -->
+  <ellipse cx="50" cy="50" rx="35" ry="15" fill="none" stroke="#FFFFFF" stroke-width="1.5" opacity="0.7" />
+  <ellipse cx="50" cy="50" rx="35" ry="25" fill="none" stroke="#FFFFFF" stroke-width="1.5" opacity="0.5" />
+
+  <!-- Longitude line -->
+  <path d="M 50 15 Q 35 50 50 85" fill="none" stroke="#FFFFFF" stroke-width="1.5" opacity="0.7" />
+  <path d="M 50 15 Q 65 50 50 85" fill="none" stroke="#FFFFFF" stroke-width="1.5" opacity="0.7" />
+
+  <!-- Cultural exchange symbols - connecting dots -->
+  <circle cx="35" cy="35" r="3.5" fill="#FCD34D" />
+  <circle cx="65" cy="35" r="3.5" fill="#FCD34D" />
+  <circle cx="35" cy="65" r="3.5" fill="#FCD34D" />
+  <circle cx="65" cy="65" r="3.5" fill="#FCD34D" />
+
+  <!-- Connection lines between cultures -->
+  <line x1="35" y1="35" x2="65" y2="35" stroke="#FCD34D" stroke-width="1.5" opacity="0.6" />
+  <line x1="35" y1="65" x2="65" y2="65" stroke="#FCD34D" stroke-width="1.5" opacity="0.6" />
+  <line x1="35" y1="35" x2="35" y2="65" stroke="#FCD34D" stroke-width="1.5" opacity="0.6" />
+  <line x1="65" y1="35" x2="65" y2="65" stroke="#FCD34D" stroke-width="1.5" opacity="0.6" />
+
+  <!-- Center connection point -->
+  <circle cx="50" cy="50" r="4" fill="#FFFFFF" />
+  <circle cx="50" cy="50" r="2" fill="#FCD34D" />
+</svg>
