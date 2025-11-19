@@ -7,6 +7,7 @@ export interface ICity extends Document {
     type: string;
     coordinates: [number, number]; // [longitude, latitude]
   };
+  isSeed: boolean; // Permanent seed cities always visible on map
   contentCount: number;
   hasContent: boolean;
   moderators: mongoose.Types.ObjectId[];
@@ -33,6 +34,10 @@ const CitySchema = new Schema<ICity>({
       type: [Number],
       required: true
     }
+  },
+  isSeed: {
+    type: Boolean,
+    default: false
   },
   contentCount: {
     type: Number,

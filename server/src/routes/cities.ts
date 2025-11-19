@@ -20,7 +20,8 @@ function getDistance(lat1: number, lon1: number, lat2: number, lon2: number): nu
   return R * c; // Distance in km
 }
 
-// Create or get city from coordinates (auto-generation)
+// Get city info from coordinates (does NOT save to DB - only for viewing)
+// Cities are only saved when a post is created for them
 router.post('/from-coordinates', authMiddleware, async (req: Request, res: Response) => {
   try {
     const { lat, lng } = req.body;
@@ -32,7 +33,7 @@ router.post('/from-coordinates', authMiddleware, async (req: Request, res: Respo
 
     const PROXIMITY_THRESHOLD_KM = 20; // Cities within 20km are considered the same
 
-    // Check if a city already exists nearby
+    // Check if a city already exists nearby in the database
     const allCities = await City.find({});
     const nearbyCity = allCities.find(city => {
       const distance = getDistance(
@@ -49,8 +50,9 @@ router.post('/from-coordinates', authMiddleware, async (req: Request, res: Respo
       return;
     }
 
-    // No nearby city found, use reverse geocoding to get city name
-    // Using Nominatim (OpenStreetMap's free geocoding service)
+    // No nearby city in DB, use reverse geocoding to get city info
+    // This city data is returned but NOT saved to DB
+    // It will only be saved when a user creates a post for it
     const nominatimResponse = await axios.get(
       `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&zoom=10`,
       {
@@ -63,12 +65,9 @@ router.post('/from-coordinates', authMiddleware, async (req: Request, res: Respo
     const data = nominatimResponse.data;
     const address = data.address;
 
-    // Extract city name with priority order (exclude county/state/region)
-    // Priority: city > town > village > municipality > suburb
-    // Fallback: Use state/region with "Region" suffix if no city found
+    // Extract city name with priority order
     let cityName = address.city || address.town || address.village || address.municipality || address.suburb;
 
-    // If still no city name, use state/region with context
     if (!cityName || cityName === 'Unknown') {
       cityName = address.state || address.region || address.county;
       if (cityName) {
@@ -80,48 +79,51 @@ router.post('/from-coordinates', authMiddleware, async (req: Request, res: Respo
 
     const country = address.country || 'Unknown';
 
-    // Check if a city with this exact name already exists to avoid duplicates
-    const existingCity = await City.findOne({
-      name: cityName,
-      country: country
-    });
-
-    if (existingCity) {
-      res.json(existingCity);
-      return;
-    }
-
-    // Create new city
-    const newCity = new City({
+    // Return city data WITHOUT saving to database
+    // Frontend can view Wikipedia/YouTube/News for this city
+    // City will only be added to DB when someone creates a post for it
+    const tempCityData = {
       name: cityName,
       country: country,
       coordinates: {
         type: 'Point',
-        coordinates: [lng, lat] // MongoDB uses [lng, lat] order
+        coordinates: [lng, lat]
       },
+      isSeed: false,
       contentCount: 0,
-      hasContent: false
-    });
+      hasContent: false,
+      _isTemporary: true // Flag to indicate this is not in DB yet
+    };
 
-    await newCity.save();
-    res.status(201).json(newCity);
+    res.json(tempCityData);
   } catch (error) {
-    console.error('Create city from coordinates error:', error);
-    res.status(500).json({ error: 'Failed to create city' });
+    console.error('Get city from coordinates error:', error);
+    res.status(500).json({ error: 'Failed to get city information' });
   }
 });
 
-// Get all cities
+// Get all cities (seed cities + cities with content only)
 router.get('/', async (req, res: Response) => {
   try {
     const { search, limit = 1000 } = req.query;
-    const query: any = {};
+    const query: any = {
+      $or: [
+        { isSeed: true },         // Show all seed cities
+        { hasContent: true }      // Show cities with posts
+      ]
+    };
 
     if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { country: { $regex: search, $options: 'i' } }
+      query.$and = [
+        { $or: query.$or },
+        {
+          $or: [
+            { name: { $regex: search, $options: 'i' } },
+            { country: { $regex: search, $options: 'i' } }
+          ]
+        }
       ];
+      delete query.$or;
     }
 
     const cities = await City.find(query).limit(Number(limit));

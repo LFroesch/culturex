@@ -1,6 +1,7 @@
 import express, { Response } from 'express';
 import { validationResult } from 'express-validator';
 import Post from '../models/Post';
+import City from '../models/City';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
 import { postValidation } from '../utils/validation';
 import { moderateContent, checkDuplicateContent } from '../utils/contentModeration';
@@ -143,11 +144,33 @@ router.get('/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
 // Create post
 router.post('/', authMiddleware, postLimiter, async (req: AuthRequest, res: Response) => {
   try {
-    const { title, description, type, cityId, tags, photos, metadata } = req.body;
+    const { title, description, type, cityId, cityData, tags, photos, metadata } = req.body;
 
     // Validate required fields
-    if (!title || !type || !cityId) {
-      res.status(400).json({ error: 'Title, type, and cityId are required' });
+    if (!title || !type) {
+      res.status(400).json({ error: 'Title and type are required' });
+      return;
+    }
+
+    // Handle city creation/update
+    // If cityId is provided, verify it exists. If cityData is provided, create new city
+    let finalCityId = cityId;
+
+    if (!cityId && cityData) {
+      // City doesn't exist in DB yet (was temporary from /from-coordinates)
+      // Create it now since user is posting to it
+      const newCity = new City({
+        name: cityData.name,
+        country: cityData.country,
+        coordinates: cityData.coordinates,
+        isSeed: false,
+        contentCount: 0,
+        hasContent: false
+      });
+      await newCity.save();
+      finalCityId = newCity._id;
+    } else if (!cityId) {
+      res.status(400).json({ error: 'City information is required' });
       return;
     }
 
@@ -163,7 +186,7 @@ router.post('/', authMiddleware, postLimiter, async (req: AuthRequest, res: Resp
 
     const post = new Post({
       userId: req.userId,
-      cityId,
+      cityId: finalCityId,
       type,
       title,
       description,
@@ -179,6 +202,10 @@ router.post('/', authMiddleware, postLimiter, async (req: AuthRequest, res: Resp
     });
 
     await post.save();
+
+    // Update city content count and hasContent flag
+    // This happens when post is approved by moderator (see approval route)
+
     await post.populate('userId', 'username profile.photos');
 
     res.status(201).json(post);
