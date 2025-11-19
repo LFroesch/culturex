@@ -483,28 +483,16 @@ const CityPanel = ({ city, onClose }: CityPanelProps) => {
             )}
 
             {['insight', 'photo', 'food', 'recipe', 'story', 'music', 'workExchange', 'forum'].includes(activeTab) && (
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {posts.length > 0 ? (
                   posts.map((post) => (
-                    <div key={post._id} className="border border-gray-200 dark:border-gray-700 rounded p-4 bg-white dark:bg-gray-900">
-                      <h4 className="font-bold mb-2 text-gray-900 dark:text-gray-100">{post.title}</h4>
-                      {post.description && <p className="text-gray-700 dark:text-gray-300 mb-2">{post.description}</p>}
-                      {post.photos && post.photos.length > 0 && (
-                        <div className="grid grid-cols-2 gap-2 mb-2">
-                          {post.photos.map((photo: string, idx: number) => (
-                            <img key={idx} src={photo} alt="" className="w-full h-32 object-cover rounded" />
-                          ))}
-                        </div>
-                      )}
-                      <div className="flex items-center text-sm text-gray-500 dark:text-gray-300 mt-2">
-                        <span>By {post.userId?.username || 'Unknown'}</span>
-                        <span className="mx-2">•</span>
-                        <span>{new Date(post.createdAt).toLocaleDateString()}</span>
-                      </div>
-                    </div>
+                    <PostCard
+                      key={post._id}
+                      post={post}
+                    />
                   ))
                 ) : (
-                  <p className="text-gray-500 dark:text-gray-300">No content yet. Be the first to contribute!</p>
+                  <p className="text-gray-500 dark:text-gray-300 text-center py-8">No content yet. Be the first to contribute!</p>
                 )}
               </div>
             )}
