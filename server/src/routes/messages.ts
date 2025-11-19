@@ -50,9 +50,8 @@ router.get('/conversations', authMiddleware, async (req: AuthRequest, res: Respo
         $project: {
           user: {
             _id: '$user._id',
-            name: '$user.name',
-            profilePicture: '$user.profilePicture',
-            country: '$user.country'
+            username: '$user.username',
+            profile: '$user.profile'
           },
           lastMessage: 1
         }

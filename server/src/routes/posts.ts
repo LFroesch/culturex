@@ -48,9 +48,9 @@ router.get('/feed/activity', authMiddleware, async (req: AuthRequest, res: Respo
     // Get approved posts from friends
     const limitNum = parseInt(limit as string, 10);
     const posts = await Post.find(query)
-      .populate('userId', 'name country profilePicture')
+      .populate('userId', 'username profile.photos')
       .populate('cityId', 'name country')
-      .populate('comments.user', 'name profilePicture')
+      .populate('comments.user', 'username profile.photos')
       .sort({ _id: -1 }) // Sort by _id DESC for cursor pagination
       .limit(limitNum + 1); // Fetch one extra to check if there are more
 
@@ -112,7 +112,7 @@ router.get('/search', authMiddleware, async (req: AuthRequest, res: Response) =>
 
     const limitNum = parseInt(limit as string, 10);
     const posts = await Post.find(query)
-      .populate('userId', 'name country profilePicture')
+      .populate('userId', 'username profile.photos')
       .populate('cityId', 'name country')
       .sort({ _id: -1 })
       .limit(limitNum + 1);
@@ -139,15 +139,11 @@ router.get('/search', authMiddleware, async (req: AuthRequest, res: Response) =>
 // Get all posts with cursor pagination
 router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
-    const { category, author, cursor, limit = '20' } = req.query;
+    const { userId, cursor, limit = '20' } = req.query;
     const query: any = { status: 'approved' }; // Only show approved posts
 
-    if (category) {
-      query.category = category;
-    }
-
-    if (author) {
-      query.author = author;
+    if (userId) {
+      query.userId = userId;
     }
 
     // Cursor pagination
@@ -157,8 +153,8 @@ router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
 
     const limitNum = parseInt(limit as string, 10);
     const posts = await Post.find(query)
-      .populate('author', 'name country profilePicture')
-      .populate('comments.user', 'name profilePicture')
+      .populate('userId', 'username profile.photos')
+      .populate('comments.user', 'username profile.photos')
       .sort({ _id: -1 })
       .limit(limitNum + 1);
 
@@ -185,8 +181,8 @@ router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
 router.get('/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     const post = await Post.findById(req.params.id)
-      .populate('author', 'name country profilePicture')
-      .populate('comments.user', 'name profilePicture');
+      .populate('userId', 'username profile.photos')
+      .populate('comments.user', 'username profile.photos');
 
     if (!post) {
       res.status(404).json({ error: 'Post not found' });
@@ -254,10 +250,7 @@ router.post('/', authMiddleware, postLimiter, async (req: AuthRequest, res: Resp
       metadata: metadata || {},
       flagged: moderationResult.flagged,
       flagReasons: moderationResult.reasons,
-      status: 'pending',
-      // Legacy fields
-      author: req.userId,
-      content: description
+      status: 'pending'
     });
 
     await post.save();

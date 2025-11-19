@@ -21,15 +21,6 @@ export interface IUser extends Document {
   createdAt: Date;
   updatedAt: Date;
   lastActive: Date;
-  // Legacy fields for backward compatibility
-  name?: string;
-  country?: string;
-  languages?: string[];
-  languagesToLearn?: string[];
-  interests?: string[];
-  bio?: string;
-  age?: number;
-  profilePicture?: string;
 }
 
 const UserSchema = new Schema<IUser>({
@@ -97,16 +88,7 @@ const UserSchema = new Schema<IUser>({
   lastActive: {
     type: Date,
     default: Date.now
-  },
-  // Legacy fields for backward compatibility
-  name: String,
-  country: String,
-  languages: [String],
-  languagesToLearn: [String],
-  interests: [String],
-  bio: String,
-  age: Number,
-  profilePicture: String
+  }
 }, {
   timestamps: true
 });

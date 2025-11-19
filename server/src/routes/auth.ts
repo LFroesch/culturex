@@ -17,7 +17,7 @@ router.post('/register', registerValidation, async (req: Request, res: Response)
       return;
     }
 
-    const { email, password, username, name, country, languages, languagesToLearn, interests, bio, age } = req.body;
+    const { email, password, username, bio, languages, interests } = req.body;
 
     const existingUser = await User.findOne({ $or: [{ email }, { username }] });
     if (existingUser) {
@@ -31,13 +31,12 @@ router.post('/register', registerValidation, async (req: Request, res: Response)
       email,
       password: hashedPassword,
       username,
-      name,
-      country,
-      languages,
-      languagesToLearn: languagesToLearn || [],
-      interests: interests || [],
-      bio: bio || '',
-      age
+      profile: {
+        bio: bio || '',
+        languages: languages || [],
+        interests: interests || [],
+        photos: []
+      }
     });
 
     await user.save();
@@ -54,14 +53,7 @@ router.post('/register', registerValidation, async (req: Request, res: Response)
         id: user._id,
         email: user.email,
         username: user.username,
-        name: user.name,
-        country: user.country,
-        languages: user.languages,
-        languagesToLearn: user.languagesToLearn,
-        interests: user.interests,
-        bio: user.bio,
-        age: user.age,
-        profilePicture: user.profilePicture
+        profile: user.profile
       }
     });
   } catch (error) {
@@ -105,14 +97,7 @@ router.post('/login', loginValidation, async (req: Request, res: Response) => {
         id: user._id,
         email: user.email,
         username: user.username,
-        name: user.name,
-        country: user.country,
-        languages: user.languages,
-        languagesToLearn: user.languagesToLearn,
-        interests: user.interests,
-        bio: user.bio,
-        age: user.age,
-        profilePicture: user.profilePicture
+        profile: user.profile
       }
     });
   } catch (error) {
@@ -124,7 +109,10 @@ router.post('/login', loginValidation, async (req: Request, res: Response) => {
 // Get current user
 router.get('/me', authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
-    const user = await User.findById(req.userId).select('-password');
+    const user = await User.findById(req.userId)
+      .select('-password')
+      .populate('profile.cityLocation', 'name country');
+
     if (!user) {
       res.status(404).json({ error: 'User not found' });
       return;

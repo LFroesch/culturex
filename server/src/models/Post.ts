@@ -64,12 +64,7 @@ export interface IPost extends Document {
   createdAt: Date;
   updatedAt: Date;
   approvedAt?: Date;
-
-  // Legacy fields
-  author?: mongoose.Types.ObjectId;
-  content?: string;
-  category?: string;
-  images?: string[];
+  moderatorId?: mongoose.Types.ObjectId;
 }
 
 const PostSchema = new Schema<IPost>({
@@ -170,15 +165,7 @@ const PostSchema = new Schema<IPost>({
       type: Date
     }
   }],
-  approvedAt: Date,
-  // Legacy fields
-  author: {
-    type: Schema.Types.ObjectId,
-    ref: 'User'
-  },
-  content: String,
-  category: String,
-  images: [String]
+  approvedAt: Date
 }, {
   timestamps: true
 });
