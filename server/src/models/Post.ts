@@ -5,7 +5,6 @@ export interface IPost extends Document {
   cityId: mongoose.Types.ObjectId;
   type: 'insight' | 'photo' | 'food' | 'recipe' | 'story' | 'music' | 'workExchange' | 'forum';
   status: 'pending' | 'approved' | 'rejected';
-  moderatorId?: mongoose.Types.ObjectId;
 
   title: string;
   description: string;
