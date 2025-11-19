@@ -214,10 +214,10 @@ router.post('/:id/like', authMiddleware, async (req: AuthRequest, res: Response)
   }
 });
 
-// Add comment
+// Add comment (supports nested replies via parentCommentId)
 router.post('/:id/comment', authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
-    const { text } = req.body;
+    const { text, parentCommentId } = req.body;
 
     if (!text || text.trim().length === 0) {
       res.status(400).json({ error: 'Comment text is required' });
@@ -230,11 +230,21 @@ router.post('/:id/comment', authMiddleware, async (req: AuthRequest, res: Respon
       return;
     }
 
+    // If replying to a comment, verify the parent comment exists
+    if (parentCommentId) {
+      const parentExists = post.comments.some((c: any) => c._id.toString() === parentCommentId);
+      if (!parentExists) {
+        res.status(404).json({ error: 'Parent comment not found' });
+        return;
+      }
+    }
+
     post.comments.push({
       user: req.userId as any,
       text,
+      parentCommentId: parentCommentId || null,
       createdAt: new Date()
-    });
+    } as any);
 
     await post.save();
     await post.populate('comments.user', 'name profilePicture username');
@@ -275,6 +285,7 @@ router.put('/:postId/comment/:commentId', authMiddleware, async (req: AuthReques
     }
 
     comment.text = text;
+    comment.updatedAt = new Date();
     await post.save();
     await post.populate('comments.user', 'name profilePicture username');
 

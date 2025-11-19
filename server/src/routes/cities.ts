@@ -52,7 +52,7 @@ router.post('/from-coordinates', authMiddleware, async (req: Request, res: Respo
     // No nearby city found, use reverse geocoding to get city name
     // Using Nominatim (OpenStreetMap's free geocoding service)
     const nominatimResponse = await axios.get(
-      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`,
+      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&zoom=10`,
       {
         headers: {
           'User-Agent': 'CulturalX-App/1.0'
@@ -63,9 +63,33 @@ router.post('/from-coordinates', authMiddleware, async (req: Request, res: Respo
     const data = nominatimResponse.data;
     const address = data.address;
 
-    // Extract city name (try multiple fields as Nominatim varies, but avoid counties)
-    const cityName = address.city || address.town || address.village || address.municipality || 'Unknown';
+    // Extract city name with priority order (exclude county/state/region)
+    // Priority: city > town > village > municipality > suburb
+    // Fallback: Use state/region with "Region" suffix if no city found
+    let cityName = address.city || address.town || address.village || address.municipality || address.suburb;
+
+    // If still no city name, use state/region with context
+    if (!cityName || cityName === 'Unknown') {
+      cityName = address.state || address.region || address.county;
+      if (cityName) {
+        cityName = `${cityName} Region`;
+      } else {
+        cityName = 'Unknown Location';
+      }
+    }
+
     const country = address.country || 'Unknown';
+
+    // Check if a city with this exact name already exists to avoid duplicates
+    const existingCity = await City.findOne({
+      name: cityName,
+      country: country
+    });
+
+    if (existingCity) {
+      res.json(existingCity);
+      return;
+    }
 
     // Create new city
     const newCity = new City({
