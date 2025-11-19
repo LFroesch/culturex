@@ -213,6 +213,12 @@ const WikiContent = ({ wikiData }: { wikiData: any }) => {
       )}
 
       <style>{`
+        .wiki-content {
+          color: #374151;
+        }
+        .dark .wiki-content {
+          color: #d1d5db;
+        }
         .wiki-content a {
           color: #3b82f6;
           text-decoration: none;
@@ -274,12 +280,6 @@ const WikiContent = ({ wikiData }: { wikiData: any }) => {
         }
         .dark .wiki-content .reference {
           color: #60a5fa;
-        }
-        .wiki-content p {
-          color: #374151;
-        }
-        .dark .wiki-content p {
-          color: #d1d5db;
         }
       `}</style>
     </div>
