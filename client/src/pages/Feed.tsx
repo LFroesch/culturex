@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import api from '../lib/api';
 import PostSearch from '../components/PostSearch';
+import PostCard from '../components/PostCard';
 import { useToast } from '../hooks/useToast';
 import Loading from '../components/Loading';
-import OnlineStatus from '../components/OnlineStatus';
 import PostDetailModal from '../components/PostDetailModal';
+import { useAuthStore } from '../store/authStore';
 
 interface Post {
   _id: string;
@@ -31,10 +32,11 @@ interface Post {
 
 const Feed = () => {
   const toast = useToast();
+  const { user } = useAuthStore();
   const [posts, setPosts] = useState<Post[]>([]);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
-  const [feedType, setFeedType] = useState<'friends' | 'all'>('friends');
+  const [feedType, setFeedType] = useState<'friends' | 'all'>('all');
 
   useEffect(() => {
     fetchPosts();
