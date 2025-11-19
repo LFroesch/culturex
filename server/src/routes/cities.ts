@@ -172,22 +172,40 @@ router.get('/random/pick', async (req, res: Response) => {
   }
 });
 
-// Get city posts
+// Get city posts with cursor pagination
 router.get('/:id/posts', async (req, res: Response) => {
   try {
-    const { type, status = 'approved' } = req.query;
+    const { type, status = 'approved', cursor, limit = '20' } = req.query;
     const query: any = { cityId: req.params.id, status };
 
     if (type) {
       query.type = type;
     }
 
+    // Cursor pagination
+    if (cursor && typeof cursor === 'string') {
+      query._id = { $lt: cursor };
+    }
+
+    const limitNum = parseInt(limit as string, 10);
     const posts = await Post.find(query)
       .populate('userId', 'username profile.photos profile.cityLocation')
-      .sort({ createdAt: -1 })
-      .limit(50);
+      .sort({ _id: -1 })
+      .limit(limitNum + 1);
 
-    res.json(posts);
+    const hasMore = posts.length > limitNum;
+    const postsToReturn = hasMore ? posts.slice(0, limitNum) : posts;
+    const nextCursor = hasMore && postsToReturn.length > 0
+      ? postsToReturn[postsToReturn.length - 1]._id.toString()
+      : null;
+
+    res.json({
+      posts: postsToReturn,
+      pagination: {
+        hasMore,
+        nextCursor
+      }
+    });
   } catch (error) {
     console.error('Get city posts error:', error);
     res.status(500).json({ error: 'Failed to get city posts' });

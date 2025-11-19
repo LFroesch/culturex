@@ -32,6 +32,8 @@ const MessageSchema = new Schema<IMessage>({
   timestamps: true
 });
 
-MessageSchema.index({ sender: 1, receiver: 1, createdAt: -1 });
+// Compound indexes for message queries and cursor pagination
+MessageSchema.index({ sender: 1, receiver: 1, _id: -1 });
+MessageSchema.index({ receiver: 1, read: 1 }); // For unread count queries
 
 export default mongoose.model<IMessage>('Message', MessageSchema);

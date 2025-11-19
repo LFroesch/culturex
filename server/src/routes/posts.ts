@@ -10,9 +10,10 @@ import Notification from '../models/Notification';
 
 const router = express.Router();
 
-// Get activity feed (posts from friends)
+// Get activity feed (posts from friends) with cursor pagination
 router.get('/feed/activity', authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
+    const { cursor, limit = '20' } = req.query;
     const Connection = require('../models/Connection');
 
     // Get user's accepted connections
@@ -33,28 +34,50 @@ router.get('/feed/activity', authMiddleware, async (req: AuthRequest, res: Respo
     // Add current user to see their own posts
     friendIds.push(req.userId);
 
-    // Get approved posts from friends
-    const posts = await Post.find({
+    // Build query with cursor for pagination
+    const query: any = {
       userId: { $in: friendIds },
       status: 'approved'
-    })
+    };
+
+    // If cursor provided, only get posts older than cursor
+    if (cursor && typeof cursor === 'string') {
+      query._id = { $lt: cursor };
+    }
+
+    // Get approved posts from friends
+    const limitNum = parseInt(limit as string, 10);
+    const posts = await Post.find(query)
       .populate('userId', 'name country profilePicture')
       .populate('cityId', 'name country')
       .populate('comments.user', 'name profilePicture')
-      .sort({ createdAt: -1 })
-      .limit(50);
+      .sort({ _id: -1 }) // Sort by _id DESC for cursor pagination
+      .limit(limitNum + 1); // Fetch one extra to check if there are more
 
-    res.json(posts);
+    // Check if there are more posts
+    const hasMore = posts.length > limitNum;
+    const postsToReturn = hasMore ? posts.slice(0, limitNum) : posts;
+    const nextCursor = hasMore && postsToReturn.length > 0
+      ? postsToReturn[postsToReturn.length - 1]._id.toString()
+      : null;
+
+    res.json({
+      posts: postsToReturn,
+      pagination: {
+        hasMore,
+        nextCursor
+      }
+    });
   } catch (error) {
     console.error('Get activity feed error:', error);
     res.status(500).json({ error: 'Failed to get activity feed' });
   }
 });
 
-// Search posts
+// Search posts with cursor pagination
 router.get('/search', authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
-    const { q, type, cityId, limit = '20' } = req.query;
+    const { q, type, cityId, cursor, limit = '20' } = req.query;
 
     if (!q || typeof q !== 'string') {
       res.status(400).json({ error: 'Search query required' });
@@ -82,24 +105,42 @@ router.get('/search', authMiddleware, async (req: AuthRequest, res: Response) =>
       query.cityId = cityId;
     }
 
+    // Cursor pagination
+    if (cursor && typeof cursor === 'string') {
+      query._id = { $lt: cursor };
+    }
+
+    const limitNum = parseInt(limit as string, 10);
     const posts = await Post.find(query)
       .populate('userId', 'name country profilePicture')
       .populate('cityId', 'name country')
-      .sort({ createdAt: -1 })
-      .limit(parseInt(limit as string));
+      .sort({ _id: -1 })
+      .limit(limitNum + 1);
 
-    res.json(posts);
+    const hasMore = posts.length > limitNum;
+    const postsToReturn = hasMore ? posts.slice(0, limitNum) : posts;
+    const nextCursor = hasMore && postsToReturn.length > 0
+      ? postsToReturn[postsToReturn.length - 1]._id.toString()
+      : null;
+
+    res.json({
+      posts: postsToReturn,
+      pagination: {
+        hasMore,
+        nextCursor
+      }
+    });
   } catch (error) {
     console.error('Search posts error:', error);
     res.status(500).json({ error: 'Search failed' });
   }
 });
 
-// Get all posts
+// Get all posts with cursor pagination
 router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
-    const { category, author } = req.query;
-    const query: any = {};
+    const { category, author, cursor, limit = '20' } = req.query;
+    const query: any = { status: 'approved' }; // Only show approved posts
 
     if (category) {
       query.category = category;
@@ -109,13 +150,31 @@ router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
       query.author = author;
     }
 
+    // Cursor pagination
+    if (cursor && typeof cursor === 'string') {
+      query._id = { $lt: cursor };
+    }
+
+    const limitNum = parseInt(limit as string, 10);
     const posts = await Post.find(query)
       .populate('author', 'name country profilePicture')
       .populate('comments.user', 'name profilePicture')
-      .sort({ createdAt: -1 })
-      .limit(100);
+      .sort({ _id: -1 })
+      .limit(limitNum + 1);
 
-    res.json(posts);
+    const hasMore = posts.length > limitNum;
+    const postsToReturn = hasMore ? posts.slice(0, limitNum) : posts;
+    const nextCursor = hasMore && postsToReturn.length > 0
+      ? postsToReturn[postsToReturn.length - 1]._id.toString()
+      : null;
+
+    res.json({
+      posts: postsToReturn,
+      pagination: {
+        hasMore,
+        nextCursor
+      }
+    });
   } catch (error) {
     console.error('Get posts error:', error);
     res.status(500).json({ error: 'Failed to get posts' });

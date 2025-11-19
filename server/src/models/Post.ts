@@ -192,8 +192,10 @@ PostSchema.index({
   'metadata.locationDetails': 'text'
 });
 
-// Index for filtering
+// Index for filtering and pagination
 PostSchema.index({ type: 1, status: 1, cityId: 1 });
-PostSchema.index({ status: 1, createdAt: -1 });
+PostSchema.index({ status: 1, _id: -1 }); // For cursor pagination on approved posts
+PostSchema.index({ userId: 1, status: 1, _id: -1 }); // For user feed pagination
+PostSchema.index({ cityId: 1, status: 1, _id: -1 }); // For city posts pagination
 
 export default mongoose.model<IPost>('Post', PostSchema);

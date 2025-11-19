@@ -66,17 +66,40 @@ router.get('/conversations', authMiddleware, async (req: AuthRequest, res: Respo
   }
 });
 
-// Get messages with a specific user
+// Get messages with a specific user (with cursor pagination for chat history)
 router.get('/:userId', authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
-    const messages = await Message.find({
+    const { cursor, limit = '50' } = req.query;
+
+    const query: any = {
       $or: [
         { sender: req.userId, receiver: req.params.userId },
         { sender: req.params.userId, receiver: req.userId }
       ]
-    })
-      .sort({ createdAt: 1 })
-      .limit(100);
+    };
+
+    // For loading older messages, cursor represents the oldest message ID we have
+    // We want messages older than this cursor
+    if (cursor && typeof cursor === 'string') {
+      query._id = { $lt: cursor };
+    }
+
+    const limitNum = parseInt(limit as string, 10);
+
+    // Fetch messages in reverse order (newest first) for pagination
+    const messages = await Message.find(query)
+      .sort({ _id: -1 }) // Newest first for pagination
+      .limit(limitNum + 1);
+
+    const hasMore = messages.length > limitNum;
+    const messagesToReturn = hasMore ? messages.slice(0, limitNum) : messages;
+
+    // Reverse to get chronological order (oldest first) for display
+    messagesToReturn.reverse();
+
+    const nextCursor = hasMore && messages.length > 0
+      ? messages[limitNum - 1]._id.toString() // The oldest message in this batch
+      : null;
 
     // Mark messages as read
     await Message.updateMany(
@@ -84,7 +107,13 @@ router.get('/:userId', authMiddleware, async (req: AuthRequest, res: Response) =
       { read: true }
     );
 
-    res.json(messages);
+    res.json({
+      messages: messagesToReturn,
+      pagination: {
+        hasMore,
+        nextCursor
+      }
+    });
   } catch (error) {
     console.error('Get messages error:', error);
     res.status(500).json({ error: 'Failed to get messages' });
