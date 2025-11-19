@@ -85,7 +85,7 @@ const NotificationBell = () => {
     <div className="relative">
       <button
         onClick={() => setShowDropdown(!showDropdown)}
-        className="relative p-2 text-gray-600 hover:text-gray-900 focus:outline-none"
+        className="relative p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 focus:outline-none"
       >
         <span className="text-2xl">🔔</span>
         {unreadCount > 0 && (
@@ -96,13 +96,13 @@ const NotificationBell = () => {
       </button>
 
       {showDropdown && (
-        <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl z-50 max-h-96 overflow-y-auto">
-          <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-            <h3 className="font-semibold text-gray-900">Notifications</h3>
+        <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-xl z-50 max-h-96 overflow-y-auto border border-gray-200 dark:border-gray-700">
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+            <h3 className="font-semibold text-gray-900 dark:text-gray-100">Notifications</h3>
             {unreadCount > 0 && (
               <button
                 onClick={markAllAsRead}
-                className="text-xs text-primary-600 hover:text-primary-700"
+                className="text-xs text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
               >
                 Mark all read
               </button>
@@ -110,24 +110,24 @@ const NotificationBell = () => {
           </div>
 
           {notifications.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">
+            <div className="p-8 text-center text-gray-500 dark:text-gray-400">
               No notifications yet
             </div>
           ) : (
-            <div className="divide-y divide-gray-200">
+            <div className="divide-y divide-gray-200 dark:divide-gray-700">
               {notifications.map((notification) => (
                 <div
                   key={notification._id}
-                  className={`p-4 hover:bg-gray-50 cursor-pointer ${
-                    !notification.read ? 'bg-blue-50' : ''
+                  className={`p-4 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer ${
+                    !notification.read ? 'bg-blue-50 dark:bg-blue-900/30' : ''
                   }`}
                   onClick={() => {
                     markAsRead(notification._id);
                     setShowDropdown(false);
                   }}
                 >
-                  <p className="text-sm text-gray-800">{notification.content}</p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-sm text-gray-800 dark:text-gray-200">{notification.content}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                     {new Date(notification.createdAt).toLocaleString()}
                   </p>
                 </div>

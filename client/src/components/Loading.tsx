@@ -13,7 +13,7 @@ const Loading = ({ size = 'md', text }: LoadingProps) => {
   return (
     <div className="flex flex-col items-center justify-center py-8">
       <div
-        className={`${sizeClasses[size]} border-primary-600 border-t-transparent rounded-full animate-spin`}
+        className={`${sizeClasses[size]} border-primary-600 dark:border-primary-400 border-t-transparent rounded-full animate-spin`}
       />
       {text && (
         <p className="mt-4 text-gray-600 dark:text-gray-400">{text}</p>

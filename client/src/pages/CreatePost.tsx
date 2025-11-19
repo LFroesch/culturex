@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
+import { useToast } from '../hooks/useToast';
 
 const CreatePost = () => {
   const navigate = useNavigate();
+  const toast = useToast();
   const [cities, setCities] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     type: 'insight',
@@ -46,11 +48,11 @@ const CreatePost = () => {
         ...formData,
         tags: formData.tags.split(',').map(t => t.trim()).filter(Boolean)
       });
-      alert('Post submitted for moderation!');
+      toast.success('Post submitted for moderation!');
       navigate('/feed');
     } catch (error) {
       console.error('Failed to create post:', error);
-      alert('Failed to create post');
+      toast.error('Failed to create post. Please try again.');
     }
   };
 
@@ -68,7 +70,7 @@ const CreatePost = () => {
                   ...formData,
                   metadata: { ...formData.metadata, servings: e.target.value }
                 })}
-                className="px-3 py-2 border border-gray-300 rounded-md"
+                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
               />
               <input
                 type="text"
@@ -78,7 +80,7 @@ const CreatePost = () => {
                   ...formData,
                   metadata: { ...formData.metadata, prepTime: e.target.value }
                 })}
-                className="px-3 py-2 border border-gray-300 rounded-md"
+                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
               />
               <input
                 type="text"
@@ -88,7 +90,7 @@ const CreatePost = () => {
                   ...formData,
                   metadata: { ...formData.metadata, cookTime: e.target.value }
                 })}
-                className="px-3 py-2 border border-gray-300 rounded-md"
+                className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
               />
             </div>
             <textarea
@@ -99,7 +101,7 @@ const CreatePost = () => {
                 metadata: { ...formData.metadata, ingredients: e.target.value.split('\n') }
               })}
               rows={5}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             />
             <textarea
               placeholder="Instructions (one per line)"
@@ -109,7 +111,7 @@ const CreatePost = () => {
                 metadata: { ...formData.metadata, instructions: e.target.value.split('\n') }
               })}
               rows={5}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             />
           </>
         );
@@ -125,7 +127,7 @@ const CreatePost = () => {
                 ...formData,
                 metadata: { ...formData.metadata, artist: e.target.value }
               })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             />
             <select
               value={formData.metadata.musicType || ''}
@@ -133,7 +135,7 @@ const CreatePost = () => {
                 ...formData,
                 metadata: { ...formData.metadata, musicType: e.target.value }
               })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             >
               <option value="">Select music type</option>
               <option value="folk">Folk</option>
@@ -150,7 +152,7 @@ const CreatePost = () => {
                 ...formData,
                 metadata: { ...formData.metadata, audioLink: e.target.value }
               })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             />
             <textarea
               placeholder="Lyrics (optional)"
@@ -160,7 +162,7 @@ const CreatePost = () => {
                 metadata: { ...formData.metadata, lyrics: e.target.value }
               })}
               rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             />
           </>
         );
@@ -174,7 +176,7 @@ const CreatePost = () => {
                 ...formData,
                 metadata: { ...formData.metadata, workType: e.target.value }
               })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             >
               <option value="">Select work type</option>
               <option value="farm">Farm</option>
@@ -192,7 +194,7 @@ const CreatePost = () => {
                 ...formData,
                 metadata: { ...formData.metadata, duration: e.target.value }
               })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             />
             <textarea
               placeholder="What's offered (accommodation, meals, etc.)"
@@ -202,7 +204,7 @@ const CreatePost = () => {
                 metadata: { ...formData.metadata, offered: e.target.value }
               })}
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             />
             <textarea
               placeholder="Requirements"
@@ -212,7 +214,7 @@ const CreatePost = () => {
                 metadata: { ...formData.metadata, requirements: e.target.value }
               })}
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             />
           </>
         );
@@ -225,7 +227,7 @@ const CreatePost = () => {
               ...formData,
               metadata: { ...formData.metadata, photoCategory: e.target.value }
             })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
           >
             <option value="">Select category</option>
             <option value="landscape">Landscape</option>
@@ -245,7 +247,7 @@ const CreatePost = () => {
                 ...formData,
                 metadata: { ...formData.metadata, foodType: e.target.value }
               })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             >
               <option value="">Select food type</option>
               <option value="restaurant">Restaurant</option>
@@ -262,7 +264,7 @@ const CreatePost = () => {
                 ...formData,
                 metadata: { ...formData.metadata, locationDetails: e.target.value }
               })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             />
           </>
         );
@@ -275,7 +277,7 @@ const CreatePost = () => {
               ...formData,
               metadata: { ...formData.metadata, storyCategory: e.target.value }
             })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
           >
             <option value="">Select story type</option>
             <option value="personal">Personal</option>
@@ -293,7 +295,7 @@ const CreatePost = () => {
               ...formData,
               metadata: { ...formData.metadata, forumCategory: e.target.value }
             })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
           >
             <option value="">Select category</option>
             <option value="question">Question</option>
@@ -310,98 +312,101 @@ const CreatePost = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Create New Post</h2>
+    <>
+      <toast.ToastContainer />
+      <div className="max-w-3xl mx-auto">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Create New Post</h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Post Type</label>
-            <select
-              value={formData.type}
-              onChange={(e) => setFormData({ ...formData, type: e.target.value, metadata: {} })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              required
-            >
-              {postTypes.map(type => (
-                <option key={type.value} value={type.value}>{type.label}</option>
-              ))}
-            </select>
-          </div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Post Type</label>
+              <select
+                value={formData.type}
+                onChange={(e) => setFormData({ ...formData, type: e.target.value, metadata: {} })}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500"
+                required
+              >
+                {postTypes.map(type => (
+                  <option key={type.value} value={type.value}>{type.label}</option>
+                ))}
+              </select>
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
-            <select
-              value={formData.cityId}
-              onChange={(e) => setFormData({ ...formData, cityId: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              required
-            >
-              <option value="">Select a city</option>
-              {cities.map(city => (
-                <option key={city._id} value={city._id}>{city.name}, {city.country}</option>
-              ))}
-            </select>
-          </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">City</label>
+              <select
+                value={formData.cityId}
+                onChange={(e) => setFormData({ ...formData, cityId: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500"
+                required
+              >
+                <option value="">Select a city</option>
+                {cities.map(city => (
+                  <option key={city._id} value={city._id}>{city.name}, {city.country}</option>
+                ))}
+              </select>
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
-            <input
-              type="text"
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              required
-            />
-          </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Title</label>
+              <input
+                type="text"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500"
+                required
+              />
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-            <textarea
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              rows={5}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
-          </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
+              <textarea
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                rows={5}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500"
+              />
+            </div>
 
-          {renderMetadataFields()}
+            {renderMetadataFields()}
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Tags (comma-separated)</label>
-            <input
-              type="text"
-              value={formData.tags}
-              onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-              placeholder="culture, food, travel"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
-          </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tags (comma-separated)</label>
+              <input
+                type="text"
+                value={formData.tags}
+                onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+                placeholder="culture, food, travel"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary-500"
+              />
+            </div>
 
-          <div className="bg-blue-50 border border-blue-200 rounded p-4">
-            <p className="text-sm text-blue-800">
-              📝 Your post will be submitted for moderation and will appear once approved.
-            </p>
-          </div>
+            <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded p-4">
+              <p className="text-sm text-blue-800 dark:text-blue-300">
+                📝 Your post will be submitted for moderation and will appear once approved.
+              </p>
+            </div>
 
-          <div className="flex space-x-4">
-            <button
-              type="submit"
-              className="flex-1 py-3 px-4 bg-primary-600 text-white rounded-md hover:bg-primary-700 font-medium"
-            >
-              Submit for Review
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate(-1)}
-              className="px-6 py-3 border border-gray-300 rounded-md hover:bg-gray-50"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
+            <div className="flex space-x-4">
+              <button
+                type="submit"
+                className="flex-1 py-3 px-4 bg-primary-600 text-white rounded-md hover:bg-primary-700 font-medium"
+              >
+                Submit for Review
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate(-1)}
+                className="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
