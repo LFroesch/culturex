@@ -195,8 +195,9 @@ router.get('/:id/posts', async (req, res: Response) => {
 
     const hasMore = posts.length > limitNum;
     const postsToReturn = hasMore ? posts.slice(0, limitNum) : posts;
-    const nextCursor = hasMore && postsToReturn.length > 0
-      ? postsToReturn[postsToReturn.length - 1]._id.toString()
+    const lastPost = postsToReturn[postsToReturn.length - 1];
+    const nextCursor = hasMore && lastPost
+      ? String(lastPost._id)
       : null;
 
     res.json({
