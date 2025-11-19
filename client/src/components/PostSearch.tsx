@@ -36,7 +36,7 @@ const PostSearch = () => {
       if (type) params.append('type', type);
 
       const response = await api.get(`/posts/search?${params}`);
-      setResults(response.data);
+      setResults(response.data.posts || response.data);
     } catch (error) {
       console.error('Search failed:', error);
       setResults([]);

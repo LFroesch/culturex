@@ -98,35 +98,23 @@ const Discover = () => {
               <div className="flex flex-col items-center -mt-10">
                 <div className="relative">
                   <div className="w-20 h-20 bg-white dark:bg-gray-700 rounded-full border-4 border-white dark:border-gray-800 flex items-center justify-center text-2xl font-bold text-primary-600 dark:text-primary-400 shadow-lg">
-                    {user.name.charAt(0).toUpperCase()}
+                    {user.username?.charAt(0).toUpperCase() || '?'}
                   </div>
                   <div className="absolute bottom-0 right-0">
                     <OnlineStatus userId={user._id} />
                   </div>
                 </div>
-                <h3 className="mt-2 text-xl font-bold text-gray-900 dark:text-gray-100">{user.name}</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{user.country}</p>
-                {user.age && <p className="text-sm text-gray-600 dark:text-gray-400">{user.age} years old</p>}
+                <h3 className="mt-2 text-xl font-bold text-gray-900 dark:text-gray-100">{user.username}</h3>
+                {user.profile?.bio && <p className="text-sm text-gray-600 dark:text-gray-400">{user.profile.bio}</p>}
               </div>
 
               <div className="mt-4 space-y-3">
-                <div>
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Languages</p>
-                  <div className="flex flex-wrap gap-1">
-                    {user.languages.map((lang, idx) => (
-                      <span key={idx} className="px-2 py-1 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-200 rounded text-xs">
-                        {lang}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {user.languagesToLearn.length > 0 && (
+                {user.profile?.languages && user.profile.languages.length > 0 && (
                   <div>
-                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Learning</p>
+                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Languages</p>
                     <div className="flex flex-wrap gap-1">
-                      {user.languagesToLearn.map((lang, idx) => (
-                        <span key={idx} className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 rounded text-xs">
+                      {user.profile.languages.map((lang, idx) => (
+                        <span key={idx} className="px-2 py-1 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-200 rounded text-xs">
                           {lang}
                         </span>
                       ))}
@@ -134,18 +122,18 @@ const Discover = () => {
                   </div>
                 )}
 
-                {user.interests.length > 0 && (
+                {user.profile?.interests && user.profile.interests.length > 0 && (
                   <div>
                     <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Interests</p>
                     <div className="flex flex-wrap gap-1">
-                      {user.interests.slice(0, 3).map((interest, idx) => (
+                      {user.profile.interests.slice(0, 3).map((interest, idx) => (
                         <span key={idx} className="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200 rounded text-xs">
                           {interest}
                         </span>
                       ))}
-                      {user.interests.length > 3 && (
+                      {user.profile.interests.length > 3 && (
                         <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded text-xs">
-                          +{user.interests.length - 3}
+                          +{user.profile.interests.length - 3}
                         </span>
                       )}
                     </div>

@@ -30,7 +30,7 @@ const Home = () => {
   const fetchPosts = async () => {
     try {
       const response = await api.get('/posts');
-      setPosts(response.data);
+      setPosts(response.data.posts || response.data);
     } catch (error) {
       console.error('Failed to fetch posts:', error);
       toast.error('Failed to load posts');

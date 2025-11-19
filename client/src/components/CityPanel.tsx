@@ -345,7 +345,7 @@ const CityPanel = ({ city, onClose }: CityPanelProps) => {
         default:
           // User content tabs
           const postsResponse = await api.get(`/cities/${city._id}/posts?type=${tab}`);
-          setPosts(postsResponse.data);
+          setPosts(postsResponse.data.posts || postsResponse.data);
       }
     } catch (error) {
       console.error('Failed to fetch content:', error);
