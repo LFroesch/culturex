@@ -2,7 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
 import PostCard from './PostCard';
+import PostDetailModal from './PostDetailModal';
 import { useAuthStore } from '../store/authStore';
+import { useToast } from '../hooks/useToast';
 
 interface City {
   _id: string;
@@ -290,12 +292,15 @@ const WikiContent = ({ wikiData }: { wikiData: any }) => {
 
 const CityPanel = ({ city, onClose }: CityPanelProps) => {
   const navigate = useNavigate();
+  const { user } = useAuthStore();
+  const toast = useToast();
   const [activeTab, setActiveTab] = useState('insight');
   const [posts, setPosts] = useState<any[]>([]);
   const [wikiData, setWikiData] = useState<any>(null);
   const [videos, setVideos] = useState<any[]>([]);
   const [news, setNews] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<any>(null);
 
   useEffect(() => {
     if (city) {
@@ -353,6 +358,35 @@ const CityPanel = ({ city, onClose }: CityPanelProps) => {
       console.error('Failed to fetch content:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleLike = async (postId: string) => {
+    try {
+      const response = await api.post(`/posts/${postId}/like`);
+
+      // Optimistic update - update posts in list
+      setPosts(prevPosts => prevPosts.map(post =>
+        post._id === postId
+          ? { ...post, likes: response.data.liked
+              ? [...post.likes, user?._id].filter(Boolean)
+              : post.likes.filter((id: string) => id !== user?._id)
+            }
+          : post
+      ));
+
+      // Update selected post if it's open
+      if (selectedPost?._id === postId) {
+        setSelectedPost({
+          ...selectedPost,
+          likes: response.data.liked
+            ? [...selectedPost.likes, user?._id].filter(Boolean)
+            : selectedPost.likes.filter((id: string) => id !== user?._id)
+        });
+      }
+    } catch (error) {
+      console.error('Failed to like post:', error);
+      toast.error('Failed to like post');
     }
   };
 
@@ -489,6 +523,9 @@ const CityPanel = ({ city, onClose }: CityPanelProps) => {
                     <PostCard
                       key={post._id}
                       post={post}
+                      onLike={handleLike}
+                      onClick={setSelectedPost}
+                      currentUserId={user?._id}
                     />
                   ))
                 ) : (
@@ -499,6 +536,16 @@ const CityPanel = ({ city, onClose }: CityPanelProps) => {
           </>
         )}
       </div>
+
+      {/* Post Detail Modal */}
+      <PostDetailModal
+        post={selectedPost}
+        onClose={() => setSelectedPost(null)}
+        onLikeToggle={handleLike}
+      />
+
+      {/* Toast Container */}
+      <toast.ToastContainer />
     </div>
   );
 };

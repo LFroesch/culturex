@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from '../store/authStore';
 import CommentsSection from './CommentsSection';
 import api from '../lib/api';
+import { getSocket } from '../lib/socket';
 
 interface Post {
   _id: string;
@@ -57,6 +58,52 @@ const PostDetailModal = ({ post, onClose, onLikeToggle }: PostDetailModalProps) 
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
   }, [post, onClose]);
+
+  // Socket.io real-time listeners
+  useEffect(() => {
+    if (!post) return;
+
+    const socket = getSocket();
+    if (!socket) return;
+
+    // Join post room for real-time updates
+    socket.emit('join_post', { postId: post._id });
+
+    // Listen for new comments
+    const handleNewComment = (data: any) => {
+      if (data.postId === post._id) {
+        setComments((prev) => [...prev, data.comment]);
+      }
+    };
+
+    // Listen for comment updates
+    const handleCommentUpdate = (data: any) => {
+      if (data.postId === post._id) {
+        setComments((prev) =>
+          prev.map((c) => (c._id === data.comment._id ? data.comment : c))
+        );
+      }
+    };
+
+    // Listen for comment deletions
+    const handleCommentDelete = (data: any) => {
+      if (data.postId === post._id) {
+        setComments((prev) => prev.filter((c) => c._id !== data.commentId));
+      }
+    };
+
+    socket.on('post:commented', handleNewComment);
+    socket.on('comment:updated', handleCommentUpdate);
+    socket.on('comment:deleted', handleCommentDelete);
+
+    // Cleanup
+    return () => {
+      socket.emit('leave_post', { postId: post._id });
+      socket.off('post:commented', handleNewComment);
+      socket.off('comment:updated', handleCommentUpdate);
+      socket.off('comment:deleted', handleCommentDelete);
+    };
+  }, [post]);
 
   if (!post) return null;
 

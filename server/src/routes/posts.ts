@@ -7,6 +7,9 @@ import { postValidation } from '../utils/validation';
 import { moderateContent, checkDuplicateContent } from '../utils/contentModeration';
 import { postLimiter } from '../middleware/rateLimiter';
 import Notification from '../models/Notification';
+import { io } from '../index';
+import { createLikeNotification, createCommentNotification, createReplyNotification } from '../services/notificationService';
+import { broadcastPostLike, broadcastNewComment, broadcastCommentUpdate, broadcastCommentDelete } from '../socket/handlers';
 
 const router = express.Router();
 
@@ -273,7 +276,7 @@ router.post('/', authMiddleware, postLimiter, async (req: AuthRequest, res: Resp
 // Like/unlike post
 router.post('/:id/like', authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
-    const post = await Post.findById(req.params.id);
+    const post = await Post.findById(req.params.id).populate('userId', 'username');
     if (!post) {
       res.status(404).json({ error: 'Post not found' });
       return;
@@ -281,6 +284,7 @@ router.post('/:id/like', authMiddleware, async (req: AuthRequest, res: Response)
 
     const userIdStr = req.userId!.toString();
     const likeIndex = post.likes.findIndex(id => id.toString() === userIdStr);
+    const isLiking = likeIndex === -1;
 
     if (likeIndex > -1) {
       post.likes.splice(likeIndex, 1);
@@ -289,7 +293,26 @@ router.post('/:id/like', authMiddleware, async (req: AuthRequest, res: Response)
     }
 
     await post.save();
-    res.json({ likes: post.likes.length, liked: likeIndex === -1 });
+
+    // Send notification to post owner if someone liked their post
+    if (isLiking) {
+      await createLikeNotification(
+        io,
+        String(post.userId._id),
+        String(post._id),
+        userIdStr,
+        post.title
+      );
+    }
+
+    // Broadcast like update to all viewers of this post in real-time
+    broadcastPostLike(io, String(post._id), {
+      likes: post.likes.length,
+      liked: isLiking,
+      userId: userIdStr
+    });
+
+    res.json({ likes: post.likes.length, liked: isLiking });
   } catch (error) {
     console.error('Like post error:', error);
     res.status(500).json({ error: 'Failed to like post' });
@@ -306,16 +329,18 @@ router.post('/:id/comment', authMiddleware, async (req: AuthRequest, res: Respon
       return;
     }
 
-    const post = await Post.findById(req.params.id);
+    const post = await Post.findById(req.params.id).populate('userId', 'username');
     if (!post) {
       res.status(404).json({ error: 'Post not found' });
       return;
     }
 
+    let parentComment: any = null;
+
     // If replying to a comment, verify the parent comment exists
     if (parentCommentId) {
-      const parentExists = post.comments.some((c: any) => c._id.toString() === parentCommentId);
-      if (!parentExists) {
+      parentComment = post.comments.find((c: any) => c._id.toString() === parentCommentId);
+      if (!parentComment) {
         res.status(404).json({ error: 'Parent comment not found' });
         return;
       }
@@ -331,7 +356,47 @@ router.post('/:id/comment', authMiddleware, async (req: AuthRequest, res: Respon
     await post.save();
     await post.populate('comments.user', 'name profilePicture username');
 
-    res.json(post.comments[post.comments.length - 1]);
+    const userIdStr = req.userId!.toString();
+
+    // Create notifications
+    if (parentCommentId && parentComment) {
+      // This is a reply - notify the parent comment author
+      await createReplyNotification(
+        io,
+        String(parentComment.user),
+        String(post._id),
+        userIdStr,
+        post.title
+      );
+
+      // Also notify post owner if they're not the replier and not the parent commenter
+      const postOwnerId = String(post.userId._id);
+      if (postOwnerId !== userIdStr && String(parentComment.user) !== postOwnerId) {
+        await createCommentNotification(
+          io,
+          postOwnerId,
+          String(post._id),
+          userIdStr,
+          post.title
+        );
+      }
+    } else {
+      // This is a top-level comment - notify the post owner
+      await createCommentNotification(
+        io,
+        String(post.userId._id),
+        String(post._id),
+        userIdStr,
+        post.title
+      );
+    }
+
+    const newComment = post.comments[post.comments.length - 1];
+
+    // Broadcast new comment to all viewers of this post in real-time
+    broadcastNewComment(io, String(post._id), newComment);
+
+    res.json(newComment);
   } catch (error) {
     console.error('Add comment error:', error);
     res.status(500).json({ error: 'Failed to add comment' });
@@ -371,10 +436,56 @@ router.put('/:postId/comment/:commentId', authMiddleware, async (req: AuthReques
     await post.save();
     await post.populate('comments.user', 'name profilePicture username');
 
+    // Broadcast comment update to all viewers of this post in real-time
+    broadcastCommentUpdate(io, req.params.postId, comment);
+
     res.json(comment);
   } catch (error) {
     console.error('Edit comment error:', error);
     res.status(500).json({ error: 'Failed to edit comment' });
+  }
+});
+
+// Like/unlike comment
+router.post('/:postId/comment/:commentId/like', authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const post = await Post.findById(req.params.postId);
+    if (!post) {
+      res.status(404).json({ error: 'Post not found' });
+      return;
+    }
+
+    const comment = post.comments.find((c: any) => c._id.toString() === req.params.commentId);
+    if (!comment) {
+      res.status(404).json({ error: 'Comment not found' });
+      return;
+    }
+
+    const userIdStr = req.userId!.toString();
+
+    // Initialize likes array if it doesn't exist
+    if (!comment.likes) {
+      comment.likes = [];
+    }
+
+    const likeIndex = comment.likes.findIndex((id: any) => id.toString() === userIdStr);
+    const isLiking = likeIndex === -1;
+
+    if (likeIndex > -1) {
+      comment.likes.splice(likeIndex, 1);
+    } else {
+      comment.likes.push(req.userId as any);
+    }
+
+    await post.save();
+
+    // Broadcast comment like update to all viewers of this post in real-time
+    broadcastCommentUpdate(io, req.params.postId, comment);
+
+    res.json({ likes: comment.likes.length, liked: isLiking });
+  } catch (error) {
+    console.error('Like comment error:', error);
+    res.status(500).json({ error: 'Failed to like comment' });
   }
 });
 
@@ -401,8 +512,12 @@ router.delete('/:postId/comment/:commentId', authMiddleware, async (req: AuthReq
       return;
     }
 
+    const commentId = req.params.commentId;
     post.comments.splice(commentIndex, 1);
     await post.save();
+
+    // Broadcast comment deletion to all viewers of this post in real-time
+    broadcastCommentDelete(io, req.params.postId, commentId);
 
     res.json({ message: 'Comment deleted successfully' });
   } catch (error) {

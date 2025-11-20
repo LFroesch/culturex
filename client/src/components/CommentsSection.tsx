@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
 import api from '../lib/api';
 import { useToast } from '../hooks/useToast';
@@ -13,6 +13,7 @@ interface Comment {
   };
   text: string;
   parentCommentId?: string | null;
+  likes?: string[];
   createdAt: string;
   updatedAt?: string;
 }
@@ -40,13 +41,44 @@ const CommentsSection = ({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
   const [loading, setLoading] = useState(false);
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest'>('newest');
+  const [localComments, setLocalComments] = useState<Comment[]>(comments);
+
+  // Sync local comments with props
+  useEffect(() => {
+    setLocalComments(comments);
+  }, [comments]);
+
+  // Handle comment like
+  const handleLikeComment = async (commentId: string) => {
+    try {
+      const response = await api.post(`/posts/${postId}/comment/${commentId}/like`);
+
+      // Optimistically update local state
+      setLocalComments(prevComments =>
+        prevComments.map(c =>
+          c._id === commentId
+            ? {
+                ...c,
+                likes: response.data.liked
+                  ? [...(c.likes || []), user?._id].filter(Boolean)
+                  : (c.likes || []).filter((id: string) => id !== user?._id)
+              }
+            : c
+        )
+      );
+    } catch (error) {
+      console.error('Failed to like comment:', error);
+      toast.error('Failed to like comment');
+    }
+  };
 
   // Organize comments into a tree structure
   const organizeComments = (): { topLevel: Comment[]; replies: Record<string, Comment[]> } => {
     const topLevel: Comment[] = [];
     const replies: Record<string, Comment[]> = {};
 
-    comments.forEach((comment) => {
+    localComments.forEach((comment) => {
       if (!comment.parentCommentId) {
         topLevel.push(comment);
       } else {
@@ -57,8 +89,14 @@ const CommentsSection = ({
       }
     });
 
-    // Sort by date (newest first for top-level, oldest first for replies)
-    topLevel.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    // Sort by date based on sortBy setting
+    const sortFn = sortBy === 'newest'
+      ? (a: Comment, b: Comment) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      : (a: Comment, b: Comment) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+
+    topLevel.sort(sortFn);
+
+    // Replies always oldest first for better conversation flow
     Object.keys(replies).forEach((key) => {
       replies[key].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
     });
@@ -226,6 +264,19 @@ const CommentsSection = ({
             {!isEditing && (
               <div className="flex items-center space-x-4 mt-1 text-xs">
                 <button
+                  onClick={() => handleLikeComment(comment._id)}
+                  className={`flex items-center space-x-1 font-medium transition-colors ${
+                    comment.likes?.includes(user?._id || '')
+                      ? 'text-red-500 hover:text-red-600'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-red-500'
+                  }`}
+                >
+                  <span>{comment.likes?.includes(user?._id || '') ? '❤️' : '🤍'}</span>
+                  {comment.likes && comment.likes.length > 0 && (
+                    <span>{comment.likes.length}</span>
+                  )}
+                </button>
+                <button
                   onClick={() => setReplyingTo(comment._id)}
                   className="text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 font-medium"
                 >
@@ -334,6 +385,38 @@ const CommentsSection = ({
             </button>
           </div>
         </div>
+
+        {/* Sort Controls */}
+        {topLevel.length > 0 && (
+          <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
+            <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+              {localComments.length} {localComments.length === 1 ? 'Comment' : 'Comments'}
+            </h3>
+            <div className="flex items-center space-x-2">
+              <span className="text-xs text-gray-600 dark:text-gray-400">Sort by:</span>
+              <button
+                onClick={() => setSortBy('newest')}
+                className={`text-xs px-2 py-1 rounded ${
+                  sortBy === 'newest'
+                    ? 'bg-primary-600 text-white'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                }`}
+              >
+                Newest
+              </button>
+              <button
+                onClick={() => setSortBy('oldest')}
+                className={`text-xs px-2 py-1 rounded ${
+                  sortBy === 'oldest'
+                    ? 'bg-primary-600 text-white'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                }`}
+              >
+                Oldest
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Comments List */}
         <div className="space-y-4">

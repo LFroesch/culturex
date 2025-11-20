@@ -94,6 +94,36 @@ export const setupSocketHandlers = (io: Server) => {
       }
     });
 
+    // Join a post room to receive real-time updates
+    socket.on('join_post', (data) => {
+      const { postId } = data;
+      socket.join(`post:${postId}`);
+    });
+
+    // Leave a post room
+    socket.on('leave_post', (data) => {
+      const { postId } = data;
+      socket.leave(`post:${postId}`);
+    });
+
+    // Typing indicator for comments
+    socket.on('comment_typing', (data) => {
+      const { postId } = data;
+      socket.to(`post:${postId}`).emit('user_comment_typing', {
+        userId: socket.userId,
+        postId
+      });
+    });
+
+    // Stop typing indicator for comments
+    socket.on('comment_stop_typing', (data) => {
+      const { postId } = data;
+      socket.to(`post:${postId}`).emit('user_comment_stop_typing', {
+        userId: socket.userId,
+        postId
+      });
+    });
+
     socket.on('disconnect', () => {
       console.log('User disconnected:', socket.userId);
       if (socket.userId) {
@@ -113,6 +143,38 @@ export const sendNotification = async (io: Server, notification: any) => {
   if (userSocketId) {
     io.to(userSocketId).emit('new_notification', notification);
   }
+};
+
+// Helper function to broadcast post like to all viewers
+export const broadcastPostLike = (io: Server, postId: string, data: any) => {
+  io.to(`post:${postId}`).emit('post:liked', {
+    postId,
+    ...data
+  });
+};
+
+// Helper function to broadcast new comment to all viewers
+export const broadcastNewComment = (io: Server, postId: string, comment: any) => {
+  io.to(`post:${postId}`).emit('post:commented', {
+    postId,
+    comment
+  });
+};
+
+// Helper function to broadcast comment update to all viewers
+export const broadcastCommentUpdate = (io: Server, postId: string, comment: any) => {
+  io.to(`post:${postId}`).emit('comment:updated', {
+    postId,
+    comment
+  });
+};
+
+// Helper function to broadcast comment delete to all viewers
+export const broadcastCommentDelete = (io: Server, postId: string, commentId: string) => {
+  io.to(`post:${postId}`).emit('comment:deleted', {
+    postId,
+    commentId
+  });
 };
 
 // Helper function to check if user is online
