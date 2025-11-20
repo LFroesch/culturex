@@ -383,14 +383,11 @@ const PostCard = ({ post, onLike, onClick, currentUserId }: PostCardProps) => {
         <div className="w-10 h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-bold">
           {post.userId.username?.charAt(0).toUpperCase() || '?'}
         </div>
-        <div className="absolute -bottom-1 -right-1">
-          <OnlineStatus userId={post.userId._id} />
-        </div>
       </div>
       <div className="flex-1">
         <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm">{post.userId.username}</p>
         <p className="text-xs text-gray-500 dark:text-gray-400">
-          {post.cityId.name}, {post.cityId.country} • {new Date(post.createdAt).toLocaleDateString()}
+          {new Date(post.createdAt).toLocaleDateString()}
         </p>
       </div>
     </div>
