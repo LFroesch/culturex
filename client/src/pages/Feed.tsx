@@ -60,18 +60,27 @@ const Feed = () => {
 
   const handleLike = async (postId: string) => {
     try {
-      await api.post(`/posts/${postId}/like`);
-      setPosts(posts.map(p =>
-        p._id === postId
-          ? { ...p, likes: p.likes.includes('current-user') ? p.likes.filter(id => id !== 'current-user') : [...p.likes, 'current-user'] }
-          : p
+      const response = await api.post(`/posts/${postId}/like`);
+
+      // Optimistic update - update posts in list
+      setPosts(prevPosts => prevPosts.map(post =>
+        post._id === postId
+          ? {
+              ...post,
+              likes: response.data.liked
+                ? [...post.likes, user?._id].filter(Boolean)
+                : post.likes.filter((id: string) => id !== user?._id)
+            }
+          : post
       ));
-      if (selectedPost && selectedPost._id === postId) {
+
+      // Update selected post if it's open
+      if (selectedPost?._id === postId) {
         setSelectedPost({
           ...selectedPost,
-          likes: selectedPost.likes.includes('current-user')
-            ? selectedPost.likes.filter(id => id !== 'current-user')
-            : [...selectedPost.likes, 'current-user']
+          likes: response.data.liked
+            ? [...selectedPost.likes, user?._id].filter(Boolean)
+            : selectedPost.likes.filter((id: string) => id !== user?._id)
         });
       }
     } catch (error) {
