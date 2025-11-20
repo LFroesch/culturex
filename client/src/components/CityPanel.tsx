@@ -323,13 +323,19 @@ const CityPanel = ({ city, onClose }: CityPanelProps) => {
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && city) {
-        onClose();
+        // If modal is open, close modal first
+        if (selectedPost) {
+          setSelectedPost(null);
+        } else {
+          // Otherwise close the panel
+          onClose();
+        }
       }
     };
 
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
-  }, [city, onClose]);
+  }, [city, onClose, selectedPost]);
 
   const fetchTabContent = async (tab: string) => {
     if (!city) return;
@@ -362,26 +368,35 @@ const CityPanel = ({ city, onClose }: CityPanelProps) => {
   };
 
   const handleLike = async (postId: string) => {
+    if (!user?._id) {
+      toast.error('Please log in to like posts');
+      return;
+    }
+
     try {
       const response = await api.post(`/posts/${postId}/like`);
+      const userId = String(user._id);
 
       // Optimistic update - update posts in list
-      setPosts(prevPosts => prevPosts.map(post =>
-        post._id === postId
-          ? { ...post, likes: response.data.liked
-              ? [...post.likes, user?._id].filter(Boolean)
-              : post.likes.filter((id: string) => id !== user?._id)
-            }
-          : post
-      ));
+      setPosts(prevPosts => prevPosts.map(post => {
+        if (post._id === postId) {
+          const newLikes = response.data.liked
+            ? [...post.likes, userId]
+            : post.likes.filter((id: string) => String(id) !== userId);
+          return { ...post, likes: newLikes };
+        }
+        return post;
+      }));
 
       // Update selected post if it's open
       if (selectedPost?._id === postId) {
+        const newLikes = response.data.liked
+          ? [...selectedPost.likes, userId]
+          : selectedPost.likes.filter((id: string) => String(id) !== userId);
+
         setSelectedPost({
           ...selectedPost,
-          likes: response.data.liked
-            ? [...selectedPost.likes, user?._id].filter(Boolean)
-            : selectedPost.likes.filter((id: string) => id !== user?._id)
+          likes: newLikes
         });
       }
     } catch (error) {
